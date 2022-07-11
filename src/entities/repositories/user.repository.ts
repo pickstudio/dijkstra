@@ -1,4 +1,4 @@
-import { CustomRepository } from 'src/settings/typeorm/custom-typeorm-decorator';
+import { CustomRepository } from '@root/settings/typeorm/custom-typeorm-decorator';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../user.entity';
 
