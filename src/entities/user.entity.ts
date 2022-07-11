@@ -18,11 +18,17 @@ export class UserEntity extends TimeColumns {
   @Column()
   phoneNumberId: number;
 
-  @Column({ nullable: true })
+  @Column()
   email: string;
 
-  @Column({ nullable: true })
+  @Column()
   password: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  birth: Date;
 
   /**
    * NOTE : bellow are relations.

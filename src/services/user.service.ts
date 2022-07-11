@@ -8,4 +8,8 @@ export class UserService {
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,
   ) {}
+
+  async getAll() {
+    return await this.userRepository.find();
+  }
 }
