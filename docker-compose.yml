@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  dijkstra-mysql:
+    image: mysql:8.0.28
+    ports:
+      - '23306:3306'
+    container_name: dijkstra-mysql
+    environment:
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=dijkstra-test
+
+  dijkstra-app:
+    container_name: dijkstra-app
+    build:
+      dockerfile: Dockerfile
+      context: .
+    image: dijkstra/dijkstra-api
+    command: tail -f /dev/null
+    ports:
+      - "3000:3000"
