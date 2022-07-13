@@ -4,11 +4,12 @@ import {
   Column,
   OneToOne,
   ManyToMany,
+  BaseEntity,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 
 @Entity()
-export class PhoneNumberEntity {
+export class PhoneNumberEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
