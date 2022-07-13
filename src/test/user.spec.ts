@@ -2,6 +2,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserController } from '@root/controllers/user.controller';
+import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
+import { UserEntity } from '@root/entities/user.entity';
 import { UserModule } from '@root/modules/user.module';
 import * as path from 'path';
 
@@ -29,7 +31,7 @@ describe('UserController', () => {
               entities: [path.join(__dirname, '../entities/*.entity{.ts,.js}')],
               synchronize: true,
               socketPath: '/tmp/mysql.sock',
-              logging: false,
+              logging: true,
             };
           },
         }),
@@ -56,7 +58,42 @@ describe('UserController', () => {
   });
 
   describe('2. 유저가 생성된다. ( POST /user )', () => {
-    it.todo('2.1. 유저가 생성된다.');
+    let saved_user: UserEntity;
+    let saved_phoneNumber: PhoneNumberEntity;
+    afterEach(async () => {
+      if (saved_user && saved_user.id) {
+        const userToDelete = await UserEntity.find({where: {id: saved_user.id }});
+        await UserEntity.remove(userToDelete);
+      }
+      if (saved_phoneNumber && saved_phoneNumber.id) {
+        const phoneNumberToDelete = await PhoneNumberEntity.find({where: {id: saved_phoneNumber.id}});
+        await PhoneNumberEntity.remove(phoneNumberToDelete);
+      }
+    })
+
+    it('2.1. 유저가 생성된다.', async () => {
+      const user = new UserEntity();
+      const phoneNumber = new PhoneNumberEntity();
+      phoneNumber.phoneNumber = '010-1234-5678';
+      
+      saved_phoneNumber = await PhoneNumberEntity.save(phoneNumber)
+      console.log(saved_phoneNumber)
+      expect(saved_phoneNumber).toBeDefined();
+      expect(saved_phoneNumber).toBeInstanceOf(PhoneNumberEntity);
+
+      user.name = 'hi'
+      user.email = 'test@test.com';
+      user.password = 'test'
+      user.phoneNumberId = saved_phoneNumber.id;  
+      user.birth = new Date('2022-07-12');
+      console.log(user);
+      saved_user = await Controller.saveUser(user);
+      console.log(saved_user);
+
+      expect(saved_user).toBeDefined();
+      expect(saved_user).toBeInstanceOf(UserEntity)
+    });
+    
     it.todo('2.2. 동일한 이메일의 유저는 생성될 수 없다.');
     it.todo('2.3. 유저의 비밀번호는 암호화되어 저장되어야 한다.');
 
