@@ -6,11 +6,13 @@ import {
   JoinColumn,
   ManyToMany,
   JoinTable,
+  Unique,
 } from 'typeorm';
 import { TimeColumns } from './common/time-columns';
 import { PhoneNumberEntity } from './phone-number.entity';
 
 @Entity()
+@Unique(['email'])
 export class UserEntity extends TimeColumns {
   @PrimaryGeneratedColumn()
   id: number;
