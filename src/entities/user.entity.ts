@@ -18,7 +18,7 @@ export class UserEntity extends TimeColumns {
   @Column()
   phoneNumberId: number;
 
-  @Column()
+  @Column({unique: true})
   email: string;
 
   @Column()
