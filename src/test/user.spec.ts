@@ -62,11 +62,11 @@ describe('UserController', () => {
     let saved_phoneNumber: PhoneNumberEntity;
     afterEach(async () => {
       if (saved_user && saved_user.id) {
-        const userToDelete = await UserEntity.find({where: {id: saved_user.id }});
+        const userToDelete = await UserEntity.findOne({where: {id: saved_user.id }});
         await UserEntity.remove(userToDelete);
       }
       if (saved_phoneNumber && saved_phoneNumber.id) {
-        const phoneNumberToDelete = await PhoneNumberEntity.find({where: {id: saved_phoneNumber.id}});
+        const phoneNumberToDelete = await PhoneNumberEntity.findOne({where: {id: saved_phoneNumber.id}});
         await PhoneNumberEntity.remove(phoneNumberToDelete);
       }
     })
@@ -94,7 +94,32 @@ describe('UserController', () => {
       expect(saved_user).toBeInstanceOf(UserEntity)
     });
     
-    it.todo('2.2. 동일한 이메일의 유저는 생성될 수 없다.');
+    it('2.2. 동일한 이메일의 유저는 생성될 수 없다.', async () => {
+      const user = new UserEntity();
+      const phoneNumber = new PhoneNumberEntity();
+      phoneNumber.phoneNumber = '010-1234-5678';
+      
+      saved_phoneNumber = await PhoneNumberEntity.save(phoneNumber)
+      console.log(saved_phoneNumber)
+      expect(saved_phoneNumber).toBeDefined();
+      expect(saved_phoneNumber).toBeInstanceOf(PhoneNumberEntity);
+
+      user.name = 'hi'
+      user.email = 'test@test.com';
+      user.password = 'test'
+      user.phoneNumberId = saved_phoneNumber.id;  
+      user.birth = new Date('2022-07-12');
+      console.log(user);
+      saved_user = await Controller.saveUser(user);
+      console.log(saved_user);
+      let newsave;
+      try{
+         newsave = await Controller.saveUser(user);
+      } catch {
+        expect(newsave).toBeUndefined()
+      }
+    });
+
     it.todo('2.3. 유저의 비밀번호는 암호화되어 저장되어야 한다.');
 
     // NOTE : 엄밀히 말해, nullable한 값이 아니기 때문에 테스트로 작성될 필요는 없는 부분이다.
