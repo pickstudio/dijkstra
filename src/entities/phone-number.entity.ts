@@ -6,10 +6,11 @@ import {
   ManyToMany,
   BaseEntity,
 } from 'typeorm';
+import { TimeColumns } from './common/time-columns';
 import { UserEntity } from './user.entity';
 
 @Entity()
-export class PhoneNumberEntity extends BaseEntity {
+export class PhoneNumberEntity extends TimeColumns {
   @PrimaryGeneratedColumn()
   id: number;
 
