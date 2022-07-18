@@ -36,7 +36,9 @@ export class UserEntity extends TimeColumns {
    * NOTE : bellow are relations.
    */
 
-  @OneToOne(() => PhoneNumberEntity, (phoneNumber) => phoneNumber.owner)
+  @OneToOne(() => PhoneNumberEntity, (phoneNumber) => phoneNumber.owner, {
+    cascade: ["insert"]
+  })
   @JoinColumn({ name: 'phoneNumberId', referencedColumnName: 'id' })
   phoneNumber: PhoneNumberEntity;
 
