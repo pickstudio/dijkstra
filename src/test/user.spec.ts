@@ -62,61 +62,65 @@ describe('UserController', () => {
     let saved_phoneNumber: PhoneNumberEntity;
     afterEach(async () => {
       if (saved_user && saved_user.id) {
-        const userToDelete = await UserEntity.findOne({where: {id: saved_user.id }});
+        const userToDelete = await UserEntity.findOne({
+          where: { id: saved_user.id },
+        });
         await UserEntity.remove(userToDelete);
       }
       if (saved_phoneNumber && saved_phoneNumber.id) {
-        const phoneNumberToDelete = await PhoneNumberEntity.findOne({where: {id: saved_phoneNumber.id}});
+        const phoneNumberToDelete = await PhoneNumberEntity.findOne({
+          where: { id: saved_phoneNumber.id },
+        });
         await PhoneNumberEntity.remove(phoneNumberToDelete);
       }
-    })
+    });
 
     it('2.1. 유저가 생성된다.', async () => {
       const user = new UserEntity();
       const phoneNumber = new PhoneNumberEntity();
       phoneNumber.phoneNumber = '010-1234-5678';
-      
-      saved_phoneNumber = await PhoneNumberEntity.save(phoneNumber)
-      console.log(saved_phoneNumber)
+
+      saved_phoneNumber = await PhoneNumberEntity.save(phoneNumber);
+      console.log(saved_phoneNumber);
       expect(saved_phoneNumber).toBeDefined();
       expect(saved_phoneNumber).toBeInstanceOf(PhoneNumberEntity);
 
-      user.name = 'hi'
+      user.name = 'hi';
       user.email = 'test@test.com';
-      user.password = 'test'
-      user.phoneNumberId = saved_phoneNumber.id;  
+      user.password = 'test';
+      user.phoneNumberId = saved_phoneNumber.id;
       user.birth = new Date('2022-07-12');
       console.log(user);
       saved_user = await Controller.saveUser(user);
       console.log(saved_user);
 
       expect(saved_user).toBeDefined();
-      expect(saved_user).toBeInstanceOf(UserEntity)
+      expect(saved_user).toBeInstanceOf(UserEntity);
     });
-    
+
     it('2.2. 동일한 이메일의 유저는 생성될 수 없다.', async () => {
       const user = new UserEntity();
       const phoneNumber = new PhoneNumberEntity();
       phoneNumber.phoneNumber = '010-1234-5678';
-      
-      saved_phoneNumber = await PhoneNumberEntity.save(phoneNumber)
-      console.log(saved_phoneNumber)
+
+      saved_phoneNumber = await PhoneNumberEntity.save(phoneNumber);
+      console.log(saved_phoneNumber);
       expect(saved_phoneNumber).toBeDefined();
       expect(saved_phoneNumber).toBeInstanceOf(PhoneNumberEntity);
 
-      user.name = 'hi'
+      user.name = 'hi';
       user.email = 'test@test.com';
-      user.password = 'test'
-      user.phoneNumberId = saved_phoneNumber.id;  
+      user.password = 'test';
+      user.phoneNumberId = saved_phoneNumber.id;
       user.birth = new Date('2022-07-12');
       console.log(user);
       saved_user = await Controller.saveUser(user);
       console.log(saved_user);
       let newsave;
-      try{
-         newsave = await Controller.saveUser(user);
+      try {
+        newsave = await Controller.saveUser(user);
       } catch {
-        expect(newsave).toBeUndefined()
+        expect(newsave).toBeUndefined();
       }
     });
 

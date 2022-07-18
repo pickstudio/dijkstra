@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
 import { UserRepository } from '@root/entities/repositories/user.repository';
-import { UserEntity } from '@root/entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -10,24 +11,28 @@ export class UserService {
     private readonly userRepository: UserRepository,
   ) {}
 
+  async getOneByEmailWithDeleted(email: string) {
+    const user = await this.userRepository.findOne({
+      withDeleted: true,
+      where: { email },
+    });
+
+    return user;
+  }
+
+  async update(userId: number, updateUserDto: UpdateUserDto) {
+    return await this.userRepository.update({ id: userId }, updateUserDto);
+  }
+
   async getAll() {
     return await this.userRepository.find();
   }
 
-  async saveUser(user: UserEntity) {
-    // email 중복가입 방지
-    let isNotDuplicated;
-    try { // 전달받은 이메일 조회
-      isNotDuplicated = UserEntity.findOne({where: {email: user.email}})
-      console.log("flow: try")
-    }catch { // 중복 시 403 Exception 발생
-      console.log("flow: catch")
-      throw new HttpException({
-        status: HttpStatus.FORBIDDEN,
-        error: 'This email is already joined'
-      }, HttpStatus.FORBIDDEN)
-    }
-
-    return await this.userRepository.save(user)
+  async saveUser(createUserDto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 8);
+    return await this.userRepository.save({
+      ...createUserDto,
+      password: hashedPassword,
+    });
   }
 }

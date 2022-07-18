@@ -1,3 +1,7 @@
+import { IsEmail, IsInt } from '@nestjs/class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmptyString } from '@root/decorators/is-not-empty-string.decorator';
+import { Type } from 'class-transformer';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -17,18 +21,24 @@ export class UserEntity extends TimeColumns {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @IsInt()
   @Column()
+  @Type(() => Number) // NOTE : class-transformer
   phoneNumberId: number;
 
-  @Column({unique: true})
+  @IsNotEmptyString(3, 100)
+  @IsEmail()
+  @Column({ unique: true, length: 100 })
   email: string;
 
   @Column()
   password: string;
 
+  @ApiProperty({ description: '이름', example: 'kakasoo' })
   @Column()
   name: string;
 
+  @ApiProperty({ description: '생일', example: new Date() })
   @Column()
   birth: Date;
 
