@@ -9,7 +9,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiParam } from '@nestjs/swagger';
-import { CreateUserDto, FindUserDto, UpdateUserDto } from '@root/dto/user.dto';
+import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserService } from '@root/services/user.service';
 
