@@ -9,7 +9,8 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiParam } from '@nestjs/swagger';
-import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
+import { CreateUserDto, FindUserDto, UpdateUserDto } from '@root/dto/user.dto';
+import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserService } from '@root/services/user.service';
 
 @Controller('user')
@@ -48,7 +49,13 @@ export class UserController {
     if (createdUser) {
       throw new BadRequestException('이미 생성된 유저입니다!');
     }
-
+    const phoneNumber: PhoneNumberEntity = new PhoneNumberEntity();
+    phoneNumber.phoneNumber = createUserDto.phoneNumber.toString();
+    const savedPhoneNumber = await PhoneNumberEntity.save(phoneNumber);
+    createUserDto = {
+      ...createUserDto,
+      phoneNumber: savedPhoneNumber,
+    };
     return await this.userService.saveUser(createUserDto);
   }
 }
