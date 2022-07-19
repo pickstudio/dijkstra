@@ -26,11 +26,13 @@ export class UserEntity extends TimeColumns {
   @Type(() => Number) // NOTE : class-transformer
   phoneNumberId: number;
 
+  @ApiProperty({ description: '이메일', example: 'test@test.com' })
   @IsNotEmptyString(3, 100)
   @IsEmail()
   @Column({ unique: true, length: 100 })
   email: string;
 
+  @ApiProperty({ description: '비밀번호', example: 'password123!@#' })
   @Column()
   password: string;
 
@@ -46,8 +48,9 @@ export class UserEntity extends TimeColumns {
    * NOTE : bellow are relations.
    */
 
+  @ApiProperty({ description: '전화번호', example: '01012345678' })
   @OneToOne(() => PhoneNumberEntity, (phoneNumber) => phoneNumber.owner, {
-    cascade: ["insert"]
+    cascade: ['insert'],
   })
   @JoinColumn({ name: 'phoneNumberId', referencedColumnName: 'id' })
   phoneNumber: PhoneNumberEntity;

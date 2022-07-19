@@ -40,11 +40,13 @@ export class UserController {
     return await this.userService.getAll();
   }
 
+  @ApiParam({ name: 'id', description: '조회할 유저의 아이디', example: 1 })
   @Get(':id')
   async getOneUser(@Param('id', ParseIntPipe) userId: number) {
     return await this.userService.getOneUser(userId);
   }
 
+  @ApiBody({ type: CreateUserDto })
   @Post()
   async saveUser(@Body() createUserDto: CreateUserDto) {
     const createdUser = await this.userService.getOneByEmailWithDeleted(
