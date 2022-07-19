@@ -16,7 +16,6 @@ import { TimeColumns } from './common/time-columns';
 import { PhoneNumberEntity } from './phone-number.entity';
 
 @Entity()
-@Unique(['email'])
 export class UserEntity extends TimeColumns {
   @PrimaryGeneratedColumn()
   id: number;
@@ -48,7 +47,10 @@ export class UserEntity extends TimeColumns {
    * NOTE : bellow are relations.
    */
 
-  @ApiProperty({ description: '전화번호', example: '01012345678' })
+  @ApiProperty({
+    description: '전화번호',
+    example: { phoneNumber: '01012345678' },
+  })
   @OneToOne(() => PhoneNumberEntity, (phoneNumber) => phoneNumber.owner, {
     cascade: ['insert'],
   })
