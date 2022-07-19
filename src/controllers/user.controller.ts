@@ -56,9 +56,15 @@ export class UserController {
     if (createdUser) {
       throw new BadRequestException('이미 생성된 유저입니다!');
     }
-    const phoneNumber: PhoneNumberEntity = new PhoneNumberEntity();
-    phoneNumber.phoneNumber = createUserDto.phoneNumber.toString();
+    const phoneNumber = createUserDto.phoneNumber;
     const savedPhoneNumber = await PhoneNumberEntity.save(phoneNumber);
+    /* 테스트에서도 작성한 의문이지만,
+      createUserDto를 재정의하는 과정에서 UserEntity 또는 CreateUserDto가 아닌
+      일반 Object 자료형으로 변환된다.
+      local 환경에서 테스트 한 결과 아직까지는 문제없이 동작하지만 추후에 어떤 문제가 발생할 지 알 수 없다.
+      이를 class-transformer의 plainToClass(CreateUserDto | UserEntity, {...})
+      와 같은 방식으로 형 변환을 해주어야 할 필요가 있는지, 그렇다면 왜 그런지에 대해 알고 싶다.
+    */
     createUserDto = {
       ...createUserDto,
       phoneNumber: savedPhoneNumber,
