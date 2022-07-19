@@ -40,6 +40,11 @@ export class UserController {
     return await this.userService.getAll();
   }
 
+  @Get(':id')
+  async getOneUser(@Param('id', ParseIntPipe) userId: number) {
+    return await this.userService.getOneUser(userId);
+  }
+
   @Post()
   async saveUser(@Body() createUserDto: CreateUserDto) {
     const createdUser = await this.userService.getOneByEmailWithDeleted(

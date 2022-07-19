@@ -20,6 +20,12 @@ export class UserService {
     return user;
   }
 
+  async getOneUser(userId: number) {
+    return await this.userRepository.findOne({
+      where: { id: userId },
+    });
+  }
+
   async update(userId: number, updateUserDto: UpdateUserDto) {
     return await this.userRepository.update({ id: userId }, updateUserDto);
   }
