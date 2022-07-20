@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserController } from '@root/controllers/user.controller';
 import { CreateUserDto } from '@root/dto/user.dto';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
+import { UserRepository } from '@root/entities/repositories/user.repository';
 import { UserEntity } from '@root/entities/user.entity';
 import { UserModule } from '@root/modules/user.module';
 import { plainToClass } from 'class-transformer';
@@ -87,7 +88,7 @@ describe('UserController', () => {
 
       const user = plainToClass(UserEntity, {
         name: 'hi',
-        email: 'test@test.com',
+        email: 'test2@test.com',
         password: 'password',
         birth: new Date('2022-07-12'),
         phoneNumber: saved_phoneNumber,
@@ -97,7 +98,7 @@ describe('UserController', () => {
       expect(saved_phoneNumber).toBeInstanceOf(PhoneNumberEntity);
 
       saved_user = await Controller.saveUser(user);
-      console.log(saved_user);
+      // console.log(saved_user);
 
       expect(saved_user).toBeDefined();
       /*
@@ -120,7 +121,7 @@ describe('UserController', () => {
 
       const user = plainToClass(UserEntity, {
         name: 'hi',
-        email: 'test@test.com',
+        email: 'test2@test.com',
         password: 'password',
         birth: new Date('2022-07-12'),
         phoneNumber: saved_phoneNumber,
@@ -147,7 +148,7 @@ describe('UserController', () => {
 
       const user = plainToClass(UserEntity, {
         name: 'hi',
-        email: 'test@test.com',
+        email: 'test2@test.com',
         password: 'password',
         birth: new Date('2022-07-12'),
         phoneNumber: saved_phoneNumber,
@@ -166,12 +167,60 @@ describe('UserController', () => {
   });
 
   describe('3. 유저를 삭제한다. ( DELETE /user/{:id} )', () => {
+    let saved_user: UserEntity;
+    let saved_phoneNumber: PhoneNumberEntity;
+    afterEach(async () => {
+      if (saved_user && saved_user.id) {
+        const userToDelete = await UserEntity.findOne({
+          where: { id: saved_user.id },
+          withDeleted: true
+        });
+        await UserEntity.remove(userToDelete);
+      }
+      if (saved_phoneNumber && saved_phoneNumber.id) {
+        const phoneNumberToDelete = await PhoneNumberEntity.findOne({
+          where: { id: saved_phoneNumber.id },
+        });
+        await PhoneNumberEntity.remove(phoneNumberToDelete);
+      }
+    });
     /**
      * NOTE :
      * soft-delete 할 것 ( deletedAt에 삭제 날짜를 기입한다. )
      * TypeORM의 find는 별도의 조건을 주지 않으면 deletedAt이 null이 아닌 row는 알아서 제외한다.
      * 삭제 후 다시 조회하여 ( hint. withDeleted ) 삭제 날짜가 기입되었는지 체크해보기
      */
-    it.todo('3.1. 특정 id의 유저를 삭제한다.');
+    it('3.1. 특정 id의 유저를 삭제한다.', async () => {
+      const phoneNumber: PhoneNumberEntity = plainToClass(PhoneNumberEntity, {
+        phoneNumber: '010-1234-5678',
+      });
+
+      saved_phoneNumber = await PhoneNumberEntity.save(phoneNumber);
+
+      const user = plainToClass(UserEntity, {
+        name: 'hi',
+        email: 'test2@test.com',
+        password: 'password',
+        birth: new Date('2022-07-12'),
+        phoneNumber: saved_phoneNumber,
+      });
+
+      saved_user = await Controller.saveUser(user);
+      expect(saved_user.deletedAt).toEqual(null);
+      const userIdToDelete = saved_user.id;
+      const result = await Controller.deleteUser(userIdToDelete);
+      // console.log("this is result: ");
+      // console.log(result);
+      expect(result.affected).toEqual(1);
+
+      const userDeleted = await UserEntity.findOne({
+        where: {id: userIdToDelete},
+        withDeleted: true
+      })
+      // console.log("this is delete check: ");
+      // console.log(userDeleted);
+      expect(userDeleted.deletedAt).not.toEqual(null);
+      expect(userDeleted.deletedAt).toBeInstanceOf(Date);
+    });
   });
 });
