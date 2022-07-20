@@ -41,4 +41,7 @@ export class UserService {
       password: hashedPassword,
     });
   }
+  async deleteOneUser(userIdToDelete: number) {
+    return await this.userRepository.softDelete({id: userIdToDelete});
+  }
 }

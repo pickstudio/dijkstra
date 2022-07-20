@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -70,5 +71,16 @@ export class UserController {
       phoneNumber: savedPhoneNumber,
     };
     return await this.userService.saveUser(createUserDto);
+  }
+
+  @Delete(':id')
+  async deleteUser(@Param('id', ParseIntPipe) userIdToDelete: number) {
+    const deletedUser = await this.userService.getOneUser(userIdToDelete);
+
+    if (!deletedUser) {
+      throw new BadRequestException('없는 유저입니다!')
+    }
+
+    return await this.userService.deleteOneUser(userIdToDelete)
   }
 }
