@@ -1,3 +1,5 @@
+import { IsString, Matches } from '@nestjs/class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -5,13 +7,16 @@ import {
   OneToOne,
   ManyToMany,
 } from 'typeorm';
+import { TimeColumns } from './common/time-columns';
 import { UserEntity } from './user.entity';
 
 @Entity()
-export class PhoneNumberEntity {
+export class PhoneNumberEntity extends TimeColumns {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ApiProperty({description: '전화번호', example: '01012345678'})
+  @IsString()
   @Column()
   phoneNumber: string;
 
