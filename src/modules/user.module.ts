@@ -6,6 +6,7 @@ import { CustomTypeOrmModule } from '@root/settings/typeorm/custom-typeorm.modul
 
 @Module({
   imports: [CustomTypeOrmModule.forCustomRepository([UserRepository])],
+  exports: [UserService],
   controllers: [UserController],
   providers: [UserService],
 })
