@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { loginInfo } from './auth.input';
+import { loginInfo } from './auth/auth.input';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 
 @Controller()
