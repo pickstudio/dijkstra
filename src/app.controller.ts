@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBody, ApiProperty } from '@nestjs/swagger';
+import { ApiBody } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { loginInfo } from './auth.input';
+import { LocalAuthGuard } from './auth/local-auth.guard';
 
 @Controller()
 export class AppController {
@@ -14,7 +14,7 @@ export class AppController {
   }
 
   @ApiBody({description: "로그인", type: loginInfo})
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(LocalAuthGuard)
   @Post('auth/login')
   async login(@Request() req) {
     return req.user;
