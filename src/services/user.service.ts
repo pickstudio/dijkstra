@@ -33,6 +33,9 @@ export class UserService {
   }
 
   async update(userId: number, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 8);
+    }
     return await this.userRepository.update({ id: userId }, updateUserDto);
   }
 
@@ -49,5 +52,8 @@ export class UserService {
   }
   async deleteOneUser(userIdToDelete: number) {
     return await this.userRepository.softDelete({id: userIdToDelete});
+  }
+  async updatePhoneBook(user: any, userPhoneBookDto: any) {
+    return await this.userRepository.update({ id: user.userId}, userPhoneBookDto)
   }
 }
