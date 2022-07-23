@@ -1,14 +1,19 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, MethodNotAllowedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
+import { UserHasPhoneNumberEntity } from '@root/entities/address-book.entity';
+import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
+import { UserHasPhoneNumberRepository } from '@root/entities/repositories/address-book.repository';
 import { UserRepository } from '@root/entities/repositories/user.repository';
 import * as bcrypt from 'bcrypt';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,
+    private readonly addressBookRepository: UserHasPhoneNumberRepository
   ) {}
 
   async getOneByEmailWithDeleted(email: string) {
@@ -33,6 +38,7 @@ export class UserService {
   }
 
   async update(userId: number, updateUserDto: UpdateUserDto) {
+    console.log(updateUserDto);
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 8);
     }
@@ -53,7 +59,16 @@ export class UserService {
   async deleteOneUser(userIdToDelete: number) {
     return await this.userRepository.softDelete({id: userIdToDelete});
   }
-  async updatePhoneBook(user: any, userPhoneBookDto: any) {
-    return await this.userRepository.update({ id: user.userId}, userPhoneBookDto)
+  async updateAddressBook(userToken: any, phoneNumbers: PhoneNumberEntity[]) {
+    let updatePhoneBook = phoneNumbers.map(
+      phoneNumberEntity => plainToClass(UserHasPhoneNumberEntity, {
+        userId: userToken.userId,
+        phoneNumberId: phoneNumberEntity.id
+      }
+    ));
+    const result = await this.addressBookRepository.save(updatePhoneBook);
+    
+    throw new MethodNotAllowedException();  
+    // return await this.userRepository.update(user, useraddressBookDto)
   }
 }

@@ -8,15 +8,56 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
+import { JwtAuthGuard } from '@root/auth/jwt-auth.guard';
+import { AddressBookDto } from '@root/dto/address-book.dto';
 import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserService } from '@root/services/user.service';
+import { plainToClass } from 'class-transformer';
+import { In } from 'typeorm';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @ApiBearerAuth('Bearer')
+  @UseGuards(JwtAuthGuard)
+  @Put('phonebook')
+  async updatePhoneBook(
+    @Request() req,
+    @Body() addressBookDto:AddressBookDto
+    ) {
+      const savedPhoneNumbers = await PhoneNumberEntity.find({
+        where: {phoneNumber: In(addressBookDto.addressBook)}
+      });
+      
+      const savedOnlyNumbers = savedPhoneNumbers.map(
+        (entity) => {
+          return entity.phoneNumber
+        }
+      )
+      const unsavedPhoneNumbers = addressBookDto.addressBook.filter((item) => { 
+        if (savedOnlyNumbers.includes(item)) {
+          return false;
+        }
+        return true;
+      })
+      
+    const newSavedPhoneNumbers = await PhoneNumberEntity.save(
+      unsavedPhoneNumbers.map(phoneNumber => plainToClass(PhoneNumberEntity, {
+        phoneNumber: phoneNumber
+      }))
+    )
+    
+    return await this.userService.updateAddressBook(req.user, [
+      ...newSavedPhoneNumbers,
+      ...savedPhoneNumbers
+    ])
+  }
 
   @ApiParam({ name: 'id', description: '수정할 유저의 아이디', example: 1 })
   @ApiBody({ type: UpdateUserDto })
