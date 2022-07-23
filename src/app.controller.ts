@@ -25,11 +25,7 @@ export class AppController {
     return this.authService.login(req.user);
   }
 
-  @ApiHeader({
-    name: "Authorization",
-    description: "jwt token",
-  })
-  @ApiBearerAuth()
+  @ApiBearerAuth('Bearer')
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
