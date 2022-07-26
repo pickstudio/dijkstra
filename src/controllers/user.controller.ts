@@ -26,37 +26,40 @@ export class UserController {
 
   @ApiBearerAuth('Bearer')
   @UseGuards(JwtAuthGuard)
-  @Put('phonebook')
-  async updatePhoneBook(
+  @Put('addressbook')
+  async updateAddressBook(
     @Request() req,
-    @Body() addressBookDto:AddressBookDto
-    ) {
-      const savedPhoneNumbers = await PhoneNumberEntity.find({
-        where: {phoneNumber: In(addressBookDto.addressBook)}
-      });
-      
-      const savedOnlyNumbers = savedPhoneNumbers.map(
-        (entity) => {
-          return entity.phoneNumber
-        }
-      )
-      const unsavedPhoneNumbers = addressBookDto.addressBook.filter((item) => { 
-        if (savedOnlyNumbers.includes(item)) {
-          return false;
-        }
-        return true;
-      })
-      
+    @Body() addressBookDto: AddressBookDto,
+  ) {
+    const savedPhoneNumbers = await PhoneNumberEntity.find({
+      where: {
+        phoneNumber: In(addressBookDto.addressBook.map((elem) => elem.phone)),
+      },
+    });
+
+    const savedOnlyNumbers = savedPhoneNumbers.map((entity) => {
+      return entity.phoneNumber;
+    });
+    const unsavedPhoneNumbers = addressBookDto.addressBook.filter((item) => {
+      if (savedOnlyNumbers.includes(item.phone)) {
+        return false;
+      }
+      return true;
+    });
+
     const newSavedPhoneNumbers = await PhoneNumberEntity.save(
-      unsavedPhoneNumbers.map(phoneNumber => plainToClass(PhoneNumberEntity, {
-        phoneNumber: phoneNumber
-      }))
-    )
-    
-    return await this.userService.updateAddressBook(req.user, [
-      ...newSavedPhoneNumbers,
-      ...savedPhoneNumbers
-    ])
+      unsavedPhoneNumbers.map((elem) =>
+        plainToClass(PhoneNumberEntity, {
+          phoneNumber: elem.phone,
+        }),
+      ),
+    );
+
+    return await this.userService.updateAddressBook(
+      req.user,
+      [...newSavedPhoneNumbers, ...savedPhoneNumbers],
+      addressBookDto,
+    );
   }
 
   @ApiParam({ name: 'id', description: '수정할 유저의 아이디', example: 1 })
@@ -119,9 +122,9 @@ export class UserController {
     const deletedUser = await this.userService.getOneUser(userIdToDelete);
 
     if (!deletedUser) {
-      throw new BadRequestException('없는 유저입니다!')
+      throw new BadRequestException('없는 유저입니다!');
     }
 
-    return await this.userService.deleteOneUser(userIdToDelete)
+    return await this.userService.deleteOneUser(userIdToDelete);
   }
 }

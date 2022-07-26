@@ -13,7 +13,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,
-    private readonly addressBookRepository: UserHasPhoneNumberRepository
+    private readonly addressBookRepository: UserHasPhoneNumberRepository,
   ) {}
 
   async getOneByEmailWithDeleted(email: string) {
@@ -33,8 +33,8 @@ export class UserService {
 
   async getOneUserByEmail(userEmail: string) {
     return await this.userRepository.findOne({
-      where: { email: userEmail }
-    })
+      where: { email: userEmail },
+    });
   }
 
   async update(userId: number, updateUserDto: UpdateUserDto) {
@@ -57,18 +57,32 @@ export class UserService {
     });
   }
   async deleteOneUser(userIdToDelete: number) {
-    return await this.userRepository.softDelete({id: userIdToDelete});
+    return await this.userRepository.softDelete({ id: userIdToDelete });
   }
-  async updateAddressBook(userToken: any, phoneNumbers: PhoneNumberEntity[]) {
-    let updatePhoneBook = phoneNumbers.map(
-      phoneNumberEntity => plainToClass(UserHasPhoneNumberEntity, {
+
+  async updateAddressBook(
+    userToken: any,
+    phoneNumbers: PhoneNumberEntity[],
+    addressBookDto,
+  ) {
+    let updatePhoneBook = phoneNumbers.map((phoneNumberEntity) =>
+      plainToClass(UserHasPhoneNumberEntity, {
         userId: userToken.userId,
-        phoneNumberId: phoneNumberEntity.id
-      }
-    ));
-    const result = await this.addressBookRepository.save(updatePhoneBook);
-    
-    throw new MethodNotAllowedException();  
+        phoneNumberId: phoneNumberEntity.id,
+        phoneNickname: addressBookDto.addressBook.find(
+          (elem) => elem.phone == phoneNumberEntity.phoneNumber,
+        ).name,
+      }),
+    );
+    console.log(updatePhoneBook);
+    // const result = await this.addressBookRepository.save(updatePhoneBook);
+    const result = await this.addressBookRepository.upsert(updatePhoneBook, {
+      conflictPaths: ['userId', 'phoneNumberId'],
+      skipUpdateIfNoValuesChanged: true,
+    });
+    console.log(result);
+
+    throw new MethodNotAllowedException();
     // return await this.userRepository.update(user, useraddressBookDto)
   }
 }
