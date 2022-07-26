@@ -11,7 +11,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@root/auth/jwt-auth.guard';
 import { AddressBookDto } from '@root/dto/address-book.dto';
 import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
@@ -20,6 +20,7 @@ import { UserService } from '@root/services/user.service';
 import { plainToClass } from 'class-transformer';
 import { In } from 'typeorm';
 
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
