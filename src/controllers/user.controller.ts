@@ -33,6 +33,14 @@ export class UserController {
 
   @ApiBearerAuth('Bearer')
   @UseGuards(JwtAuthGuard)
+  @Get('addressbook')
+  async getAddressBook(@Request() req) {
+    return await this.userService.getAddressBook(req.user);
+  }
+
+  @ApiBearerAuth('Bearer')
+  @ApiBody({ type: AddressBookDto })
+  @UseGuards(JwtAuthGuard)
   @Put('addressbook')
   async updateAddressBook(
     @Request() req,

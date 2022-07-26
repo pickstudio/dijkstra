@@ -61,6 +61,12 @@ export class UserService {
     return await this.userRepository.softDelete({ id: userIdToDelete });
   }
 
+  async getAddressBook(userToken) {
+    return await this.addressBookRepository.findBy({
+      userId: userToken.userId,
+    });
+  }
+
   async updateAddressBook(
     userToken: any,
     phoneNumbers: PhoneNumberEntity[],
@@ -87,17 +93,17 @@ export class UserService {
     // return await this.userRepository.update(user, useraddressBookDto)
   }
 
-  async getAcquaintances(user) {
+  async getAcquaintances(userToken) {
     console.log('user.servie.ts: (getAcuaintances)\n  - user:');
-    console.log(user);
+    console.log(userToken);
     const iKnowWhoYouAre = await this.addressBookRepository.findBy({
-      userId: user.userId,
+      userId: userToken.userId,
     });
     console.log(iKnowWhoYouAre);
 
     const butIDontKnowThem = await this.addressBookRepository.findBy({
       phoneNumberId: In(iKnowWhoYouAre.map((entity) => entity.phoneNumberId)),
-      userId: Not(user.userId),
+      userId: Not(userToken.userId),
     });
 
     console.log(butIDontKnowThem);
