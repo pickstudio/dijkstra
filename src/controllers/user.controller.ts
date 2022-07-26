@@ -11,7 +11,13 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '@root/auth/jwt-auth.guard';
 import { AddressBookDto } from '@root/dto/address-book.dto';
 import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
@@ -27,6 +33,7 @@ export class UserController {
 
   @ApiBearerAuth('Bearer')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '유저와 1다리 건너 아는 다른 사용자 조회' })
   @Get('acquaintances')
   async getAcquaintances(@Request() req) {
     return await this.userService.getAcquaintances(req.user);
@@ -35,6 +42,7 @@ export class UserController {
   @ApiBearerAuth('Bearer')
   @UseGuards(JwtAuthGuard)
   @Get('addressbook')
+  @ApiOperation({ summary: '유저의 전화번호부 조회' })
   async getAddressBook(@Request() req) {
     return await this.userService.getAddressBook(req.user);
   }
@@ -42,6 +50,7 @@ export class UserController {
   @ApiBearerAuth('Bearer')
   @ApiBody({ type: AddressBookDto })
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '유저의 전화번호부 등록/갱신' })
   @Put('addressbook')
   async updateAddressBook(
     @Request() req,
@@ -80,6 +89,7 @@ export class UserController {
 
   @ApiParam({ name: 'id', description: '수정할 유저의 아이디', example: 1 })
   @ApiBody({ type: UpdateUserDto })
+  @ApiOperation({ summary: '유저의 정보 수정' })
   @Put(':id')
   async updateUser(
     @Param('id', ParseIntPipe) userIdToUpdate: number,
@@ -89,24 +99,27 @@ export class UserController {
     return true;
   }
 
-  @Get()
-  async getUser() {
-    // if (true) {
-    //   throw new BadRequestException({
-    //     message: '나는 이유없이 에러를 던질거야!',
-    //   });
-    //   // return { message, statusCode: 400, timestamp: new Date(), path: '/user' };
-    // }
+  // @Get()
+  // async getUser() {
+  // if (true) {
+  //   throw new BadRequestException({
+  //     message: '나는 이유없이 에러를 던질거야!',
+  //   });
+  //   // return { message, statusCode: 400, timestamp: new Date(), path: '/user' };
+  // }
 
-    return await this.userService.getAll();
-  }
+  // return await this.userService.getAll();
+  // }
 
   @ApiParam({ name: 'id', description: '조회할 유저의 아이디', example: 1 })
+  @ApiOperation({ summary: '유저의 정보 조회' })
   @Get(':id')
   async getOneUser(@Param('id', ParseIntPipe) userId: number) {
     return await this.userService.getOneUser(userId);
   }
 
+  @ApiParam({ name: 'id', description: '생성할 유저의 아이디', example: 1 })
+  @ApiOperation({ summary: '유저의 정보 생성' })
   @ApiBody({ type: CreateUserDto })
   @Post()
   async saveUser(@Body() createUserDto: CreateUserDto) {
@@ -133,6 +146,8 @@ export class UserController {
     return await this.userService.saveUser(createUserDto);
   }
 
+  @ApiParam({ name: 'id', description: '삭제할 유저의 아이디', example: 1 })
+  @ApiOperation({ summary: '유저의 정보 삭제' })
   @Delete(':id')
   async deleteUser(@Param('id', ParseIntPipe) userIdToDelete: number) {
     const deletedUser = await this.userService.getOneUser(userIdToDelete);
