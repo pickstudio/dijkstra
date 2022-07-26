@@ -7,6 +7,7 @@ import { UserHasPhoneNumberRepository } from '@root/entities/repositories/addres
 import { UserRepository } from '@root/entities/repositories/user.repository';
 import * as bcrypt from 'bcrypt';
 import { plainToClass } from 'class-transformer';
+import { In, Not } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -84,5 +85,24 @@ export class UserService {
 
     throw new MethodNotAllowedException();
     // return await this.userRepository.update(user, useraddressBookDto)
+  }
+
+  async getAcquaintances(user) {
+    console.log('user.servie.ts: (getAcuaintances)\n  - user:');
+    console.log(user);
+    const iKnowWhoYouAre = await this.addressBookRepository.findBy({
+      userId: user.userId,
+    });
+    console.log(iKnowWhoYouAre);
+
+    const butIDontKnowThem = await this.addressBookRepository.findBy({
+      phoneNumberId: In(iKnowWhoYouAre.map((entity) => entity.phoneNumberId)),
+      userId: Not(user.userId),
+    });
+
+    console.log(butIDontKnowThem);
+
+    // throw new MethodNotAllowedException();
+    return butIDontKnowThem;
   }
 }

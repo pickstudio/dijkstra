@@ -26,6 +26,13 @@ export class UserController {
 
   @ApiBearerAuth('Bearer')
   @UseGuards(JwtAuthGuard)
+  @Get('acquaintances')
+  async getAcquaintances(@Request() req) {
+    return await this.userService.getAcquaintances(req.user);
+  }
+
+  @ApiBearerAuth('Bearer')
+  @UseGuards(JwtAuthGuard)
   @Put('addressbook')
   async updateAddressBook(
     @Request() req,
