@@ -19,6 +19,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@root/auth/jwt-auth.guard';
+import { JwtGuardWithApiBearerAuth } from '@root/decorators/api-bearer-with-jwt-guard.decorator';
+import { UserId } from '@root/decorators/user-id.decorator';
 import { AddressBookDto } from '@root/dto/address-book.dto';
 import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
@@ -31,29 +33,26 @@ import { In } from 'typeorm';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiBearerAuth('Bearer')
-  @UseGuards(JwtAuthGuard)
+  @JwtGuardWithApiBearerAuth()
   @ApiOperation({ summary: '유저와 1다리 건너 아는 다른 사용자 조회' })
   @Get('acquaintances')
-  async getAcquaintances(@Request() req) {
-    return await this.userService.getAcquaintances(req.user);
+  async getAcquaintances(@UserId() userId: number) {
+    return await this.userService.getAcquaintances(userId);
   }
 
-  @ApiBearerAuth('Bearer')
-  @UseGuards(JwtAuthGuard)
+  @JwtGuardWithApiBearerAuth()
   @Get('addressbook')
   @ApiOperation({ summary: '유저의 전화번호부 조회' })
-  async getAddressBook(@Request() req) {
-    return await this.userService.getAddressBook(req.user);
+  async getAddressBook(@UserId() userId: number) {
+    return await this.userService.getAddressBook(userId);
   }
 
-  @ApiBearerAuth('Bearer')
   @ApiBody({ type: AddressBookDto })
-  @UseGuards(JwtAuthGuard)
+  @JwtGuardWithApiBearerAuth()
   @ApiOperation({ summary: '유저의 전화번호부 등록/갱신' })
   @Put('addressbook')
   async updateAddressBook(
-    @Request() req,
+    @UserId() userId: number,
     @Body() addressBookDto: AddressBookDto,
   ) {
     const savedPhoneNumbers = await PhoneNumberEntity.find({
@@ -81,7 +80,7 @@ export class UserController {
     );
 
     return await this.userService.updateAddressBook(
-      req.user,
+      userId,
       [...newSavedPhoneNumbers, ...savedPhoneNumbers],
       addressBookDto,
     );
