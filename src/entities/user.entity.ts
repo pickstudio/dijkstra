@@ -11,7 +11,9 @@ import {
   ManyToMany,
   JoinTable,
   Unique,
+  OneToMany,
 } from 'typeorm';
+import { UserHasPhoneNumberEntity } from './address-book.entity';
 import { TimeColumns } from './common/time-columns';
 import { PhoneNumberEntity } from './phone-number.entity';
 
@@ -67,4 +69,7 @@ export class UserEntity extends TimeColumns {
     inverseJoinColumn: { name: 'phoneNumberId', referencedColumnName: 'id' },
   })
   addressBook: PhoneNumberEntity[];
+
+   @OneToMany(() => UserHasPhoneNumberEntity, (bridge) => bridge.user)
+   bridge: UserHasPhoneNumberEntity[];
 }

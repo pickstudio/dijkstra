@@ -6,6 +6,7 @@ import {
   Column,
   OneToOne,
   ManyToMany,
+  OneToMany,
 } from 'typeorm';
 import { TimeColumns } from './common/time-columns';
 import { UserEntity } from './user.entity';
@@ -29,4 +30,7 @@ export class PhoneNumberEntity extends TimeColumns {
 
   @ManyToMany(() => UserEntity, (user) => user.addressBook)
   acquaintances: UserEntity[];
+
+  @OneToMany(() => PhoneNumberEntity, (bridge) => bridge.phoneNumber)
+  bridge: PhoneNumberEntity[];
 }
