@@ -30,13 +30,13 @@ export class UserHasPhoneNumberEntity extends TimeColumns{
    */
 
   @ManyToOne(() => UserEntity, (user) => user.bridge, {
-    eager: true, // NOTE : 이건 사용법을 찾아보자! TypeORM 문서에 있고, 이건 JPA에도 있는 개념입니다. Lazy한 방식.
+    eager: false, // NOTE : 이건 사용법을 찾아보자! TypeORM 문서에 있고, 이건 JPA에도 있는 개념입니다. Lazy한 방식.
   })
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   user: UserEntity;
 
   @ManyToOne(() => PhoneNumberEntity, (phone) => phone.bridge, {
-    eager: true, // NOTE : 이건 사용법을 찾아보자! TypeORM 문서에 있고, 이건 JPA에도 있는 개념입니다. Lazy한 방식.
+    eager: false, // NOTE : 이건 사용법을 찾아보자! TypeORM 문서에 있고, 이건 JPA에도 있는 개념입니다. Lazy한 방식.
   })
   @JoinColumn({ name: 'phoneNumberId', referencedColumnName: 'id' })
   phoneNumber: PhoneNumberEntity;
