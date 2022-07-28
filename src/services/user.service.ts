@@ -63,8 +63,25 @@ export class UserService {
   }
 
   async getAddressBook(userId) {
-    return await this.addressBookRepository.findBy({
-      userId: userId,
+    const result = await this.addressBookRepository.find({
+      relations: {
+        phoneNumber: true
+      },
+      select: {
+        phoneNumber: {
+          phoneNumber: true,
+        },
+        phoneNickname: true,
+      },
+      where: {
+        userId: userId
+      },
+    });
+    return result.map(el => {
+      return {
+        ...el,
+        phoneNumber: el.phoneNumber.phoneNumber
+      }
     });
   }
 
@@ -119,22 +136,43 @@ export class UserService {
     // return await this.userRepository.update(user, useraddressBookDto)
   }
 
-  async getAcquaintances(userId: number) {
+  async getAcquaintances(userId: number, page:number, limit: number) {
     console.log('user.servie.ts: (getAcuaintances)\n  - user:');
-    console.log(userId);
-    const iKnowWhoYouAre = await this.addressBookRepository.findBy({
-      userId: userId,
+    console.log(userId, page, limit);
+    const getSkip = (page, limit) => {
+      const skip = (page-1) * limit;
+      return { skip, limit };
+    }
+
+    const bridge = await this.addressBookRepository.find({
+      relations: {
+        phoneNumber: {
+          owner: true,
+        },
+      },
+      where: {
+        userId,
+      },
+      order: {
+        phoneNumber: {
+          owner: {
+            name: 'ASC',
+          },
+        },
+      },
+      ...getSkip(page, limit),
     });
-    console.log(iKnowWhoYouAre);
+    // console.log(bridge);
+    return bridge;
 
-    const butIDontKnowThem = await this.addressBookRepository.findBy({
-      phoneNumberId: In(iKnowWhoYouAre.map((entity) => entity.phoneNumberId)),
-      userId: Not(userId),
-    });
+    // const butIDontKnowThem = await this.addressBookRepository.findBy({
+    //   phoneNumberId: In(bridge.map((entity) => entity.phoneNumberId)),
+    //   userId: Not(userId),
+    // });
 
-    console.log(butIDontKnowThem);
+    // console.log(butIDontKnowThem);
 
-    // throw new MethodNotAllowedException();
-    return butIDontKnowThem;
+    throw new MethodNotAllowedException();
+    // return butIDontKnowThem;
   }
 }
