@@ -44,9 +44,9 @@ export class UserController {
   async getAcquaintances(
     @UserId() userId: number,
     @Query('page', ParseIntPipe)  page: number,
-    @Query('limit', ParseIntPipe) limit: number
+    @Query('take', ParseIntPipe) take: number
   ) {
-    return await this.userService.getAcquaintances(userId, page, limit);
+    return await this.userService.getAcquaintances(userId, page, take);
   }
 
   @JwtGuardWithApiBearerAuth()
@@ -86,7 +86,6 @@ export class UserController {
     return await this.userService.getOneUser(userId);
   }
 
-  @ApiParam({ name: 'id', description: '생성할 유저의 아이디', example: 1 })
   @ApiOperation({ summary: '유저의 정보 생성' })
   @ApiBody({ type: CreateUserDto })
   @Post()

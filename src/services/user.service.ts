@@ -136,43 +136,44 @@ export class UserService {
     // return await this.userRepository.update(user, useraddressBookDto)
   }
 
-  async getAcquaintances(userId: number, page:number, limit: number) {
+  async getAcquaintances(userId: number, page:number, take: number) {
     console.log('user.servie.ts: (getAcuaintances)\n  - user:');
-    console.log(userId, page, limit);
-    const getSkip = (page, limit) => {
-      const skip = (page-1) * limit;
-      return { skip, limit };
+    console.log(userId, page, take);
+    const getSkip = (page, take) => {
+      const skip = page>=1 ? (page-1) * take : 0;
+      return { 
+        skip: skip,
+        take: take
+      };
     }
+    console.log(getSkip(page, take));
 
     const bridge = await this.addressBookRepository.find({
-      relations: {
-        phoneNumber: {
-          owner: true,
-        },
+      select: {
+        phoneNumberId: true,
       },
       where: {
         userId,
       },
-      order: {
-        phoneNumber: {
-          owner: {
-            name: 'ASC',
-          },
-        },
-      },
-      ...getSkip(page, limit),
+      ...getSkip(page, take),
     });
-    // console.log(bridge);
-    return bridge;
+    console.log(bridge);
+    
+    const bridgeArray = bridge.map(el => {
+      return el.phoneNumberId
+    });
+    console.log(bridgeArray);
 
-    // const butIDontKnowThem = await this.addressBookRepository.findBy({
-    //   phoneNumberId: In(bridge.map((entity) => entity.phoneNumberId)),
-    //   userId: Not(userId),
-    // });
-
-    // console.log(butIDontKnowThem);
-
-    throw new MethodNotAllowedException();
-    // return butIDontKnowThem;
+    const newFace = this.addressBookRepository.find({
+      select: {
+        userId: true
+      },
+      where: {
+        userId : Not(userId),
+        phoneNumberId: In(bridgeArray)
+      }
+    });
+    console.log(newFace);
+    return bridgeArray;
   }
 }
