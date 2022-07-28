@@ -1,5 +1,6 @@
 import { Injectable, MethodNotAllowedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AddressBookDto } from '@root/dto/address-book.dto';
 import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
 import { UserHasPhoneNumberEntity } from '@root/entities/address-book.entity';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
@@ -69,9 +70,34 @@ export class UserService {
 
   async updateAddressBook(
     userId: any,
-    phoneNumbers: PhoneNumberEntity[],
-    addressBookDto,
+    addressBookDto: AddressBookDto,
   ) {
+
+    const savedPhoneNumbers = await PhoneNumberEntity.find({
+      where: {
+        phoneNumber: In(addressBookDto.addressBook.map((elem) => elem.phone)),
+      },
+    });
+
+    const savedOnlyNumbers = savedPhoneNumbers.map((entity) => {
+      return entity.phoneNumber;
+    });
+    const unsavedPhoneNumbers = addressBookDto.addressBook.filter((item) => {
+      if (savedOnlyNumbers.includes(item.phone)) {
+        return false;
+      }
+      return true;
+    });
+
+    const newSavedPhoneNumbers = await PhoneNumberEntity.save(
+      unsavedPhoneNumbers.map((elem) =>
+        plainToClass(PhoneNumberEntity, {
+          phoneNumber: elem.phone,
+        }),
+      ),
+    );
+    
+    const phoneNumbers = [...newSavedPhoneNumbers, ...savedPhoneNumbers];
     let updatePhoneBook = phoneNumbers.map((phoneNumberEntity) =>
       plainToClass(UserHasPhoneNumberEntity, {
         userId: userId,
