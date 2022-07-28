@@ -65,7 +65,7 @@ export class UserService {
   async getAddressBook(userId) {
     const result = await this.addressBookRepository.find({
       relations: {
-        phoneNumber: true
+        phoneNumber: true,
       },
       select: {
         phoneNumber: {
@@ -74,21 +74,18 @@ export class UserService {
         phoneNickname: true,
       },
       where: {
-        userId: userId
+        userId: userId,
       },
     });
-    return result.map(el => {
+    return result.map((el) => {
       return {
         ...el,
-        phoneNumber: el.phoneNumber.phoneNumber
-      }
+        phoneNumber: el.phoneNumber.phoneNumber,
+      };
     });
   }
 
-  async updateAddressBook(
-    userId: any,
-    addressBookDto: AddressBookDto,
-  ) {
+  async updateAddressBook(userId: any, addressBookDto: AddressBookDto) {
     // 1. DB에 저장된 휴대폰 번호 조회
     const savedPhoneNumbers = await PhoneNumberEntity.find({
       where: {
@@ -130,22 +127,22 @@ export class UserService {
       conflictPaths: ['userId', 'phoneNumberId'],
       skipUpdateIfNoValuesChanged: true,
     });
-    
+
     // 7. 반환형태 미지정으로 인한 오류 반환
     throw new MethodNotAllowedException();
     // return await this.userRepository.update(user, useraddressBookDto)
   }
 
-  async getAcquaintances(userId: number, page:number, take: number) {
+  async getAcquaintances(userId: number, page: number, take: number) {
     // skip, take 파라미터 계산 함수
     const getSkip = (page, take) => {
-      const skip = page>=1 ? (page-1) * take : 0;
-      return { 
+      const skip = page >= 1 ? (page - 1) * take : 0;
+      return {
         skip: skip,
-        take: take
+        take: take,
       };
-    }
-    
+    };
+
     // 나와 아는 사람(전화번호부 조회, 1다리)
     const bridge = await this.addressBookRepository.find({
       select: {
@@ -156,27 +153,27 @@ export class UserService {
       },
       ...getSkip(page, take),
     });
-    
+
     // bridge객체의 phoneNumberId: number 중에서 key를 제거하고 Array<Number>형태로 변환
-    const bridgeArray = bridge.map(el => {
-      return el.phoneNumberId
+    const bridgeArray = bridge.map((el) => {
+      return el.phoneNumberId;
     });
-    
+
     // 전화번호 1다리를 건너 아는 사람 조회(userId)
     const newFaceIds = await this.addressBookRepository.find({
       select: {
-        userId: true
+        userId: true,
       },
       where: {
-        userId : Not(userId),
-        phoneNumberId: In(bridgeArray)
-      }
+        userId: Not(userId),
+        phoneNumberId: In(bridgeArray),
+      },
     });
-    
+
     // 위에서 반환받은 객체를 bridgeArray와 같이 변환
-    const newFaceIdArray = newFaceIds.map(el => {
-      return el.userId
-    })
+    const newFaceIdArray = newFaceIds.map((el) => {
+      return el.userId;
+    });
 
     /* 
       user 객체 조회 후 반환, **미완성**
@@ -190,9 +187,9 @@ export class UserService {
         birth: true,
       },
       where: {
-        id: In(newFaceIdArray)
-      }
-    })
+        id: In(newFaceIdArray),
+      },
+    });
 
     return newFaceProfileArray;
   }
