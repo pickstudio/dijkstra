@@ -1,6 +1,7 @@
 import { Injectable, MethodNotAllowedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddressBookDto } from '@root/dto/address-book.dto';
+import { PageParamDto } from '@root/dto/common-get-page-param.dto';
 import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
 import { UserHasPhoneNumberEntity } from '@root/entities/address-book.entity';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
@@ -133,16 +134,7 @@ export class UserService {
     // return await this.userRepository.update(user, useraddressBookDto)
   }
 
-  async getAcquaintances(userId: number, page: number, take: number) {
-    // skip, take 파라미터 계산 함수
-    const getSkip = (page, take) => {
-      const skip = page >= 1 ? (page - 1) * take : 0;
-      return {
-        skip: skip,
-        take: take,
-      };
-    };
-
+  async getAcquaintances(userId: number, pageParamDto: PageParamDto) {
     // 나와 아는 사람(전화번호부 조회, 1다리)
     const bridge = await this.addressBookRepository.find({
       select: {
@@ -151,7 +143,7 @@ export class UserService {
       where: {
         userId,
       },
-      ...getSkip(page, take),
+      ...pageParamDto,
     });
 
     // bridge객체의 phoneNumberId: number 중에서 key를 제거하고 Array<Number>형태로 변환

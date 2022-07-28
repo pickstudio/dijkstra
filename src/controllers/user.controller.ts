@@ -11,15 +11,12 @@ import {
   Query,
   Request,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtGuardWithApiBearerAuth } from '@root/decorators/api-bearer-with-jwt-guard.decorator';
+import { PageParams } from '@root/decorators/page-params.decorator';
 import { UserId } from '@root/decorators/user-id.decorator';
 import { AddressBookDto } from '@root/dto/address-book.dto';
+import { PageParamDto } from '@root/dto/common-get-page-param.dto';
 import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserService } from '@root/services/user.service';
@@ -33,7 +30,7 @@ export class UserController {
 
   @JwtGuardWithApiBearerAuth()
   @Get('profile')
-  @ApiOperation({summary: '유저의 프로필 조회'})
+  @ApiOperation({ summary: '유저의 프로필 조회' })
   getProfile(@Request() req) {
     return req.user;
   }
@@ -43,10 +40,9 @@ export class UserController {
   @Get('acquaintance')
   async getAcquaintances(
     @UserId() userId: number,
-    @Query('page', ParseIntPipe)  page: number,
-    @Query('take', ParseIntPipe) take: number
+    @PageParams() pageParamDto: PageParamDto,
   ) {
-    return await this.userService.getAcquaintances(userId, page, take);
+    return await this.userService.getAcquaintances(userId, pageParamDto);
   }
 
   @JwtGuardWithApiBearerAuth()
@@ -99,7 +95,7 @@ export class UserController {
     }
     const phoneNumber = createUserDto.phoneNumber;
     const savedPhoneNumber = await PhoneNumberEntity.save(phoneNumber);
-    
+
     createUserDto = {
       ...createUserDto,
       phoneNumber: savedPhoneNumber,
