@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Request,
 } from '@nestjs/common';
 import {
@@ -40,8 +41,12 @@ export class UserController {
   @JwtGuardWithApiBearerAuth()
   @ApiOperation({ summary: '유저와 1다리 건너 아는 다른 사용자 조회' })
   @Get('acquaintance')
-  async getAcquaintances(@UserId() userId: number) {
-    return await this.userService.getAcquaintances(userId);
+  async getAcquaintances(
+    @UserId() userId: number,
+    @Query('page', ParseIntPipe)  page: number,
+    @Query('limit', ParseIntPipe) limit: number
+  ) {
+    return await this.userService.getAcquaintances(userId, page, limit);
   }
 
   @JwtGuardWithApiBearerAuth()
