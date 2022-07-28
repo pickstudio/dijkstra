@@ -89,23 +89,24 @@ export class UserService {
     userId: any,
     addressBookDto: AddressBookDto,
   ) {
-
+    // 1. DB에 저장된 휴대폰 번호 조회
     const savedPhoneNumbers = await PhoneNumberEntity.find({
       where: {
         phoneNumber: In(addressBookDto.addressBook.map((elem) => elem.phone)),
       },
     });
-
+    // 2. Array<Number>형태로 변환
     const savedOnlyNumbers = savedPhoneNumbers.map((entity) => {
       return entity.phoneNumber;
     });
+    // 3. 2번의 Array를 통해 저장되지 않은 번호 추출
     const unsavedPhoneNumbers = addressBookDto.addressBook.filter((item) => {
       if (savedOnlyNumbers.includes(item.phone)) {
         return false;
       }
       return true;
     });
-
+    // 4. 3번에서 추출된 번호 저장
     const newSavedPhoneNumbers = await PhoneNumberEntity.save(
       unsavedPhoneNumbers.map((elem) =>
         plainToClass(PhoneNumberEntity, {
@@ -113,7 +114,7 @@ export class UserService {
         }),
       ),
     );
-    
+    // 5. userHasPhoneNumberEntity 형태로 가공: [userId, phoneNumberId, phoneNickname]
     const phoneNumbers = [...newSavedPhoneNumbers, ...savedPhoneNumbers];
     let updatePhoneBook = phoneNumbers.map((phoneNumberEntity) =>
       plainToClass(UserHasPhoneNumberEntity, {
@@ -124,14 +125,13 @@ export class UserService {
         ).name,
       }),
     );
-    console.log(updatePhoneBook);
-    // const result = await this.addressBookRepository.save(updatePhoneBook);
+    // 6. 신규 저장 번호와 기존 저장 번호 모두 전화번호부 등록(upsert)
     const result = await this.addressBookRepository.upsert(updatePhoneBook, {
       conflictPaths: ['userId', 'phoneNumberId'],
       skipUpdateIfNoValuesChanged: true,
     });
-    console.log(result);
-
+    
+    // 7. 반환형태 미지정으로 인한 오류 반환
     throw new MethodNotAllowedException();
     // return await this.userRepository.update(user, useraddressBookDto)
   }
