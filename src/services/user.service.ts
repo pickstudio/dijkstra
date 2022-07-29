@@ -136,45 +136,64 @@ export class UserService {
 
   async getAcquaintances(userId: number, pageParamDto: PageParamDto) {
     // 나와 아는 사람(전화번호부 조회, 1다리)
+    // [phoneNumberId(전화번호부에 등록된 사람), phoneNickname(저장된 별명)]
     const bridge = await this.addressBookRepository.find({
       select: {
         phoneNumberId: true,
+        phoneNickname: true,
       },
       where: {
         userId,
       },
       ...pageParamDto,
     });
+    console.log(bridge);
 
     // bridge객체의 phoneNumberId: number 중에서 key를 제거하고 Array<Number>형태로 변환
     const bridgeArray = bridge.map((el) => {
       return el.phoneNumberId;
     });
 
-    // 전화번호 1다리를 건너 아는 사람 조회(userId)
+    // 전화번호 1다리를 건너 아는 사람 조회
+    // [userId(한 다리 건넌 사람), phoneNumberId(내 전화번호부에 등록된 사람)]
     const newFaceIds = await this.addressBookRepository.find({
       select: {
         userId: true,
+        phoneNumberId: true,
       },
       where: {
         userId: Not(userId),
         phoneNumberId: In(bridgeArray),
       },
     });
+    console.log(newFaceIds);
 
     // 위에서 반환받은 객체를 bridgeArray와 같이 변환
     const newFaceIdArray = newFaceIds.map((el) => {
       return el.userId;
     });
 
+    // 한 다리 건넌 사람과 같이 아는 전화번호의 id로 누구를 통했는지 추적
+    const chasingNickname = newFaceIds.map((el) => {
+      const target = bridge.find((el_bridge) => {
+        return el_bridge.phoneNumberId == el.phoneNumberId;
+      });
+      return {
+        ...el,
+        bridgeNickname: target.phoneNickname,
+      };
+    });
+    console.log(chasingNickname);
     /* 
       user 객체 조회 후 반환, **미완성**
       나중에 유저의 프로필과 자기사진(틴더, 글램 등에서는 약 5~6개)을 버킷에 업로드 후,
       최대 5개까지 저장하는 id -> photoProfile (OneToOne) 릴레이션을 참조하여 앱에서 불러오는 방식?
       을 업데이트하면 좋을거라 생각했음.
     */
-    const newFaceProfileArray = this.userRepository.find({
+    // [id(한 다리 건넌 사람), name, birth]
+    const newFaceProfileArray = await this.userRepository.find({
       select: {
+        id: true,
         name: true,
         birth: true,
       },
@@ -182,7 +201,19 @@ export class UserService {
         id: In(newFaceIdArray),
       },
     });
+    console.log(newFaceProfileArray);
 
-    return newFaceProfileArray;
+    // 한 다리 건너 누구를 통해 알게 되었는지 내 전화번호부의 번호 별명을 같이 전달.
+    const result = newFaceProfileArray.map((el) => {
+      const target = chasingNickname.find((el_chase) => {
+        return el_chase.userId == el.id;
+      });
+      return {
+        ...el,
+        bridge: target.bridgeNickname,
+      };
+    });
+    console.log(result);
+    return result;
   }
 }
