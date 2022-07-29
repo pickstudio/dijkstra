@@ -1,5 +1,6 @@
 import { IsEmail, IsInt } from '@nestjs/class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsGender } from '@root/decorators/gender.decorator';
 import { IsNotEmptyString } from '@root/decorators/is-not-empty-string.decorator';
 import { Type } from 'class-transformer';
 import {
@@ -45,6 +46,11 @@ export class UserEntity extends TimeColumns {
   @Column()
   birth: Date;
 
+  @ApiProperty({ description: '성별', example: 'Male' })
+  @Column()
+  @IsGender()
+  gender: string;
+
   /**
    * NOTE : bellow are relations.
    */
@@ -70,6 +76,6 @@ export class UserEntity extends TimeColumns {
   })
   addressBook: PhoneNumberEntity[];
 
-   @OneToMany(() => UserHasPhoneNumberEntity, (bridge) => bridge.user)
-   bridge: UserHasPhoneNumberEntity[];
+  @OneToMany(() => UserHasPhoneNumberEntity, (bridge) => bridge.user)
+  bridge: UserHasPhoneNumberEntity[];
 }

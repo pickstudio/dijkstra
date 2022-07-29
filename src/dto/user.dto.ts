@@ -7,6 +7,7 @@ export class CreateUserDto extends PickType(UserEntity, [
   'birth',
   'password',
   'phoneNumber',
+  'gender',
 ] as const) {}
 
 export class UpdateUserDto extends PartialType(
