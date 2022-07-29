@@ -19,9 +19,13 @@ export class TransformInterceptor<T>
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<Response<T>> {
+    const query = context.switchToHttp().getRequest().query;
     return next.handle().pipe(
       map((data) => {
-        return { data };
+        return {
+          data,
+          query,
+        };
       }),
     );
   }
