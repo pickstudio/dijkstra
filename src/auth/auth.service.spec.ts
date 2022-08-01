@@ -1,8 +1,7 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '@root/entities/user.entity';
 import { UserModule } from '@root/modules/user.module';
 import { plainToClass } from 'class-transformer';
 import * as path from 'path';
@@ -13,6 +12,7 @@ import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let jwtService: JwtService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -53,10 +53,11 @@ describe('AuthService', () => {
           },
         }),
       ],
-      providers: [AuthService],
+      providers: [AuthService, JwtService],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    jwtService = module.get<JwtService>(JwtService);
   });
 
   describe('0. 테스트 준비', () => {
@@ -89,6 +90,19 @@ describe('AuthService', () => {
         expect(state).toBeUndefined();
       }
     });
-    it.todo('1.3. 로그인에 성공하면 토큰을 발행한다.');
+    it('1.3. 로그인에 성공하면 토큰을 발행한다.', async () => {
+      const userEntity = await service.validateUser(
+        loginInfo.email,
+        loginInfo.password,
+      );
+      const token = await service.login(userEntity);
+      const dummyToken = jwtService.sign({
+        username: userEntity.name,
+        sub: userEntity.id,
+      });
+      expect(token).toBeDefined();
+      expect(token.access_token).toBeDefined();
+      expect(token.access_token).toEqual(dummyToken);
+    });
   });
 });

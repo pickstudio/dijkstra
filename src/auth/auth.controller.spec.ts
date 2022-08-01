@@ -7,13 +7,17 @@ import { AuthModule } from './auth.module';
 import { AuthService } from './auth.service';
 import * as path from 'path';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { UserRepository } from '@root/entities/repositories/user.repository';
+import { LoginInfo } from './auth.input';
+import { plainToClass } from 'class-transformer';
 
 describe('AuthController', () => {
   let controller: AuthController;
+  let service: AuthService;
+  let jwtService: JwtService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -54,13 +58,57 @@ describe('AuthController', () => {
         AuthModule,
         UserModule,
       ],
-      providers: [AuthService, LocalStrategy, JwtStrategy, UserRepository],
+      providers: [
+        AuthService,
+        LocalStrategy,
+        JwtStrategy,
+        UserRepository,
+        JwtService,
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
+    service = module.get<AuthService>(AuthService);
+    jwtService = module.get<JwtService>(JwtService);
+  });
+  describe('0. 테스트 준비', () => {
+    it('should be defined', () => {
+      expect(controller).toBeDefined();
+    });
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('1. Local 로그인.', () => {
+    let loginInfo: LoginInfo;
+    let wrongInfo: LoginInfo;
+    beforeEach(() => {
+      loginInfo = plainToClass(LoginInfo, {
+        email: 'test3@test.com',
+        password: 'password123!@#',
+      });
+      wrongInfo = plainToClass(LoginInfo, {
+        email: 'test3@test.com',
+        password: 'pass',
+      });
+    });
+
+    it('1.1. 일반적인 로그인 시도.', async () => {
+      const { email, password } = loginInfo;
+      const userEntity = await service.validateUser(email, password);
+      const state = await controller.login(userEntity);
+      expect(state).toBeDefined();
+      const decoded = jwtService.decode(state.access_token);
+      console.log(decoded);
+      expect(decoded['username']).toBeDefined();
+      expect(decoded['sub']).toBeDefined();
+    });
+
+    it('1.2. 로그인 실패', async () => {
+      const { email, password } = wrongInfo;
+      const userEntity = await service.validateUser(email, password);
+      const state = await controller.login(userEntity);
+      const decoded = jwtService.decode(state.access_token).valueOf();
+      expect(decoded['username']).toEqual('UnauthorizedException');
+      console.log(typeof decoded);
+    });
   });
 });
