@@ -6,7 +6,12 @@ import { UserService } from '@root/services/user.service';
 import { CustomTypeOrmModule } from '@root/settings/typeorm/custom-typeorm.module';
 
 @Module({
-  imports: [CustomTypeOrmModule.forCustomRepository([UserRepository, UserHasPhoneNumberRepository])],
+  imports: [
+    CustomTypeOrmModule.forCustomRepository([
+      UserRepository,
+      UserHasPhoneNumberRepository,
+    ]),
+  ],
   exports: [UserService],
   controllers: [UserController],
   providers: [UserService],

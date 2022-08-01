@@ -11,7 +11,7 @@ import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
-    UserModule, 
+    UserModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -19,10 +19,10 @@ import { AuthController } from './auth.controller';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`
-        }
+          expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
+        },
       }),
-    })
+    }),
   ],
   exports: [AuthService],
   providers: [AuthService, LocalStrategy, JwtStrategy],
