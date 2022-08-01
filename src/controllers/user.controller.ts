@@ -14,7 +14,7 @@ import {
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtGuardWithApiBearerAuth } from '@root/decorators/api-bearer-with-jwt-guard.decorator';
 import { PageParams } from '@root/decorators/page-params.decorator';
-import { UserId } from '@root/decorators/user-id.decorator';
+import { User, UserId } from '@root/decorators/user-id.decorator';
 import { AddressBookDto } from '@root/dto/address-book.dto';
 import { PageParamDto } from '@root/dto/common-get-page-param.dto';
 import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
@@ -29,8 +29,8 @@ export class UserController {
   @JwtGuardWithApiBearerAuth()
   @Get('profile')
   @ApiOperation({ summary: '유저의 프로필 조회' })
-  getProfile(@Request() req) {
-    return req.user;
+  getProfile(@User() user) {
+    return user;
   }
 
   @JwtGuardWithApiBearerAuth()
@@ -112,5 +112,9 @@ export class UserController {
     }
 
     return await this.userService.deleteOneUser(userIdToDelete);
+  }
+
+  async getUser() {
+    return await this.userService.getAll();
   }
 }
