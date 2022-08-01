@@ -2,14 +2,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserController } from '@root/controllers/user.controller';
-import { CreateUserDto } from '@root/dto/user.dto';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
-import { UserRepository } from '@root/entities/repositories/user.repository';
 import { UserEntity } from '@root/entities/user.entity';
 import { UserModule } from '@root/modules/user.module';
 import { plainToClass } from 'class-transformer';
 import * as path from 'path';
-import { ColdObservable } from 'rxjs/internal/testing/ColdObservable';
 
 describe('UserController', () => {
   let Controller: UserController;
@@ -91,6 +88,7 @@ describe('UserController', () => {
         email: 'test2@test.com',
         password: 'password',
         birth: new Date('2022-07-12'),
+        gender: 'Male',
         phoneNumber: saved_phoneNumber,
       });
 
@@ -124,6 +122,7 @@ describe('UserController', () => {
         email: 'test2@test.com',
         password: 'password',
         birth: new Date('2022-07-12'),
+        gender: 'Male',
         phoneNumber: saved_phoneNumber,
       });
       expect(saved_phoneNumber).toBeDefined();
@@ -151,6 +150,7 @@ describe('UserController', () => {
         email: 'test2@test.com',
         password: 'password',
         birth: new Date('2022-07-12'),
+        gender: 'Male',
         phoneNumber: saved_phoneNumber,
       });
       expect(saved_phoneNumber).toBeDefined();
@@ -173,7 +173,7 @@ describe('UserController', () => {
       if (saved_user && saved_user.id) {
         const userToDelete = await UserEntity.findOne({
           where: { id: saved_user.id },
-          withDeleted: true
+          withDeleted: true,
         });
         await UserEntity.remove(userToDelete);
       }
@@ -202,6 +202,7 @@ describe('UserController', () => {
         email: 'test2@test.com',
         password: 'password',
         birth: new Date('2022-07-12'),
+        gender: 'Male',
         phoneNumber: saved_phoneNumber,
       });
 
@@ -214,9 +215,9 @@ describe('UserController', () => {
       expect(result.affected).toEqual(1);
 
       const userDeleted = await UserEntity.findOne({
-        where: {id: userIdToDelete},
-        withDeleted: true
-      })
+        where: { id: userIdToDelete },
+        withDeleted: true,
+      });
       // console.log("this is delete check: ");
       // console.log(userDeleted);
       expect(userDeleted.deletedAt).not.toEqual(null);

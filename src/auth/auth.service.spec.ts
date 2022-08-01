@@ -80,7 +80,7 @@ describe('AuthService', () => {
       );
       expect(state).toBeDefined();
     });
-    it('1.2. 로그인에 실패하면 오류를 반환한다.', async () => {
+    it('1.2. 이메일과 패스워드가 정확하지 않다면 오류를 반환한다.', async () => {
       let state;
       try {
         state = await service.validateUser(loginInfo.email, 'asdf');
@@ -89,5 +89,6 @@ describe('AuthService', () => {
         expect(state).toBeUndefined();
       }
     });
+    it.todo('1.3. 로그인에 성공하면 토큰을 발행한다.');
   });
 });
