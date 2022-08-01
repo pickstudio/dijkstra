@@ -2,6 +2,7 @@ import { Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { User } from '@root/decorators/user-id.decorator';
+import { UserEntity } from '@root/entities/user.entity';
 import { LoginInfo } from './auth.input';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -17,7 +18,7 @@ export class AuthController {
   @ApiBody({ description: '로그인', type: LoginInfo })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@User() user) {
+  async login(@User() user: UserEntity) {
     return this.authService.login(user);
   }
 }
