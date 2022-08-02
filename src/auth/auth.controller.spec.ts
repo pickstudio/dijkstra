@@ -97,7 +97,6 @@ describe('AuthController', () => {
       const state = await controller.login(userEntity);
       expect(state).toBeDefined();
       const decoded = jwtService.decode(state.access_token);
-      console.log(decoded);
       expect(decoded['username']).toBeDefined();
       expect(decoded['sub']).toBeDefined();
     });
@@ -108,7 +107,7 @@ describe('AuthController', () => {
       const state = await controller.login(userEntity);
       const decoded = jwtService.decode(state.access_token).valueOf();
       expect(decoded['username']).toEqual('UnauthorizedException');
-      console.log(typeof decoded);
+      expect(decoded['sub']).toBeUndefined();
     });
   });
 });
