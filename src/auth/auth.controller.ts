@@ -1,10 +1,11 @@
-import { Controller, Post, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, UseGuards, Request, Get, Req, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { User } from '@root/decorators/user-id.decorator';
 import { UserEntity } from '@root/entities/user.entity';
 import { LoginInfo } from './auth.input';
 import { AuthService } from './auth.service';
+import { KakaoAuthGuard } from './kakao-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
 
 @ApiTags('Auth')
@@ -20,5 +21,17 @@ export class AuthController {
   @Post('login')
   async login(@User() user: UserEntity) {
     return this.authService.login(user);
+  }
+
+  @UseGuards(KakaoAuthGuard)
+  @Get('kakao')
+  async kakaoLogin(@Request() req) {
+    return HttpStatus.OK;
+  }
+
+  @UseGuards(KakaoAuthGuard)
+  @Get('kakao/callback')
+  async kakoLoginCallback(@Request() req) {
+    return this.authService.kakaoLogin(req.user);
   }
 }
