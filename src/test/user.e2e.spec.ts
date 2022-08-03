@@ -75,14 +75,19 @@ describe('User', () => {
   });
 
   describe('0. auth/login', () => {});
-  it(`/GET cats`, async () => {
+  it(`/POST auth/login`, async () => {
     const id = 29;
     const user = await classToPlain(userService.getOneUser(id));
-    return request(app.getHttpServer()).get(`/user/${id}`).expect(200).expect({
-      data: user,
-      query: {},
-      statusCode: 200,
-    });
+    return request(app.getHttpServer())
+      .get(`/user/${id}`)
+      .expect(200)
+      .expect(
+        JSON.stringify({
+          data: user,
+          query: {},
+          statusCode: 200,
+        }),
+      );
   });
 
   afterAll(async () => {
