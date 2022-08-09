@@ -9,6 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
 import { AuthController } from './auth.controller';
 import { KakaoStrategy } from './kakao.strategy';
+import { UserRepository } from '@root/entities/repositories/user.repository';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { KakaoStrategy } from './kakao.strategy';
     }),
   ],
   exports: [AuthService],
-  providers: [AuthService, LocalStrategy, JwtStrategy, KakaoStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, KakaoStrategy, UserRepository],
   controllers: [AuthController],
 })
 export class AuthModule {}

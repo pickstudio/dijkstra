@@ -56,11 +56,18 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 8);
     return await this.userRepository.save({
       ...createUserDto,
+      privder: 'local',
       password: hashedPassword,
     });
   }
   async deleteOneUser(userIdToDelete: number) {
     return await this.userRepository.softDelete({ id: userIdToDelete });
+  }
+
+  async saveKakaoUser(user) {
+    return await this.userRepository.save({
+      ...user,
+    });
   }
 
   async getAddressBook(userId) {

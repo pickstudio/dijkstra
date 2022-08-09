@@ -31,7 +31,7 @@ export class AuthController {
 
   @UseGuards(KakaoAuthGuard)
   @Get('kakao/callback')
-  async kakoLoginCallback(@Request() req) {
-    return this.authService.kakaoLogin(req.user);
+  async kakoLoginCallback(@User() user) {
+    return this.authService.kakaoLogin(user);
   }
 }

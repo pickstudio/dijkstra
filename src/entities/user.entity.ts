@@ -1,7 +1,8 @@
-import { IsEmail, IsInt } from '@nestjs/class-validator';
+import { IsEmail, IsInt, IsNumber } from '@nestjs/class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsGender } from '@root/decorators/gender.decorator';
 import { IsNotEmptyString } from '@root/decorators/is-not-empty-string.decorator';
+import { IsProvider } from '@root/decorators/oauth-provider.decorator';
 import { Type } from 'class-transformer';
 import {
   Entity,
@@ -50,6 +51,16 @@ export class UserEntity extends TimeColumns {
   @Column()
   @IsGender()
   gender: string;
+
+  @ApiProperty({ description: 'OAuth 프로바이더', example: 'kakao'})
+  @Column()
+  @IsProvider()
+  provider: string;
+
+  @ApiProperty({ description: 'OAuth 아이디', example: 12345678})
+  @Column()
+  @IsNumber()
+  oAuthId: number;
 
   /**
    * NOTE : bellow are relations.
