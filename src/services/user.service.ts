@@ -1,4 +1,4 @@
-import { Injectable, MethodNotAllowedException } from '@nestjs/common';
+import { BadRequestException, Injectable, MethodNotAllowedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddressBookDto } from '@root/dto/address-book.dto';
 import { PageParamDto } from '@root/dto/common/search-pagination.dto';
@@ -8,6 +8,7 @@ import { UserHasPhoneNumberEntity } from '@root/entities/address-book.entity';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserHasPhoneNumberRepository } from '@root/entities/repositories/address-book.repository';
 import { UserRepository } from '@root/entities/repositories/user.repository';
+import { ERROR_MESSAGE } from '@root/utils/error-message';
 import * as bcrypt from 'bcrypt';
 import { plainToClass } from 'class-transformer';
 import { In, Not } from 'typeorm';
@@ -30,9 +31,15 @@ export class UserService {
     }
 
     async getOneUser(userId: number) {
-        return await this.userRepository.findOne({
+        const user = await this.userRepository.findOne({
             where: { id: userId },
         });
+
+        if (!user) {
+            throw new BadRequestException(ERROR_MESSAGE.CANNOT_FIND_ONE_USER);
+        }
+
+        return user;
     }
 
     async getOneUserByEmail(userEmail: string) {

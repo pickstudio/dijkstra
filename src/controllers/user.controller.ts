@@ -81,15 +81,10 @@ export class UserController {
 
     @ApiParam({ name: 'id', description: '삭제할 유저의 아이디', example: 1 })
     @ApiOperation({ summary: '유저의 정보 삭제' })
-    @Delete(':id')
-    async deleteUser(@Param('id', ParseIntPipe) userIdToDelete: number) {
+    @Delete()
+    async deleteUser(@UserId() userIdToDelete: number) {
         const deletedUser = await this.userService.getOneUser(userIdToDelete);
-
-        if (!deletedUser) {
-            throw new BadRequestException('없는 유저입니다!');
-        }
-
-        return await this.userService.deleteOneUser(userIdToDelete);
+        return await this.userService.deleteOneUser(deletedUser.id);
     }
 
     @ApiOperation({ summary: '모든 유저를 조회한다 /  실제 서비스에서 사용하지 않을 로직' })
