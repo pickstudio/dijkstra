@@ -62,6 +62,7 @@ export class UserService {
 
     async saveUser(createUserDto: CreateUserDto) {
         const hashedPassword = await bcrypt.hash(createUserDto.password, 8);
+
         return await this.userRepository.save({
             ...createUserDto,
             privder: 'local',

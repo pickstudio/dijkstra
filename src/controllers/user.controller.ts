@@ -61,22 +61,14 @@ export class UserController {
         return await this.userService.getOneUser(userId);
     }
 
-    @ApiOperation({ summary: '유저의 정보 생성' })
-    @ApiBody({ type: CreateUserDto })
+    @ApiOperation({ summary: '유저 생성 / 로컬 전략 ( email, password )에 의한 회원가입' })
     @Post()
     async saveUser(@Body() createUserDto: CreateUserDto) {
         const createdUser = await this.userService.getOneByEmailWithDeleted(createUserDto.email);
-
         if (createdUser) {
             throw new BadRequestException(ERROR_MESSAGE.ALREADY_CREATED_USER);
         }
-        const phoneNumber = createUserDto.phoneNumber;
-        const savedPhoneNumber = await PhoneNumberEntity.save(phoneNumber);
 
-        createUserDto = {
-            ...createUserDto,
-            phoneNumber: savedPhoneNumber,
-        };
         return await this.userService.saveUser(createUserDto);
     }
 
