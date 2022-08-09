@@ -10,6 +10,7 @@ import { UpdateUserDto } from '@root/dto/update-user.dto';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserEntity } from '@root/entities/user.entity';
 import { UserService } from '@root/services/user.service';
+import { ERROR_MESSAGE } from '@root/utils/error-message';
 
 @ApiTags('User')
 @Controller('user')
@@ -67,7 +68,7 @@ export class UserController {
         const createdUser = await this.userService.getOneByEmailWithDeleted(createUserDto.email);
 
         if (createdUser) {
-            throw new BadRequestException('이미 생성된 유저입니다!');
+            throw new BadRequestException(ERROR_MESSAGE.ALREADY_CREATED_USER);
         }
         const phoneNumber = createUserDto.phoneNumber;
         const savedPhoneNumber = await PhoneNumberEntity.save(phoneNumber);
