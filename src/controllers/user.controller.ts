@@ -46,6 +46,10 @@ export class UserController {
         return await this.userService.updateAddressBook(userId, addressBookDto);
     }
 
+    /**
+     *  NOTE : 일단 유저의 로직만 검증하였음.
+     */
+
     @ApiParam({ name: 'id', description: '조회할 유저의 아이디', example: 1 })
     @ApiOperation({ summary: '유저의 정보 조회' })
     @Get(':id')
