@@ -49,7 +49,6 @@ export class UserService {
     }
 
     async update(userId: number, updateUserDto: UpdateUserDto) {
-        console.log(updateUserDto);
         if (updateUserDto.password) {
             updateUserDto.password = await bcrypt.hash(updateUserDto.password, 8);
         }

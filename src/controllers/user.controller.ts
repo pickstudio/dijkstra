@@ -46,19 +46,18 @@ export class UserController {
         return await this.userService.updateAddressBook(userId, addressBookDto);
     }
 
-    @ApiParam({ name: 'id', description: '수정할 유저의 아이디', example: 1 })
-    @ApiOperation({ summary: '유저의 정보 수정' })
-    @Put(':id')
-    async updateUser(@Param('id', ParseIntPipe) userIdToUpdate: number, @Body() updateUserDto: UpdateUserDto) {
-        await this.userService.update(userIdToUpdate, updateUserDto);
-        return true;
-    }
-
     @ApiParam({ name: 'id', description: '조회할 유저의 아이디', example: 1 })
     @ApiOperation({ summary: '유저의 정보 조회' })
     @Get(':id')
     async getOneUser(@Param('id', ParseIntPipe) userId: number) {
         return await this.userService.getOneUser(userId);
+    }
+
+    @ApiOperation({ summary: '유저의 정보 수정' })
+    @Put()
+    async updateUser(@UserId() userIdToUpdate: number, @Body() updateUserDto: UpdateUserDto) {
+        await this.userService.update(userIdToUpdate, updateUserDto);
+        return true;
     }
 
     @ApiOperation({ summary: '유저 생성 / 로컬 전략 ( email, password )에 의한 회원가입' })
@@ -72,7 +71,6 @@ export class UserController {
         return await this.userService.saveUser(createUserDto);
     }
 
-    @ApiParam({ name: 'id', description: '삭제할 유저의 아이디', example: 1 })
     @ApiOperation({ summary: '유저의 정보 삭제' })
     @Delete()
     async deleteUser(@UserId() userIdToDelete: number) {
