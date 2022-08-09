@@ -52,12 +52,12 @@ export class UserEntity extends TimeColumns {
   @IsGender()
   gender: string;
 
-  @ApiProperty({ description: 'OAuth 프로바이더', example: 'kakao'})
+  @ApiProperty({ description: 'OAuth 프로바이더', example: 'kakao' })
   @Column()
   @IsProvider()
   provider: string;
 
-  @ApiProperty({ description: 'OAuth 아이디', example: 12345678})
+  @ApiProperty({ description: 'OAuth 아이디', example: 12345678 })
   @Column()
   @IsNumber()
   oAuthId: number;

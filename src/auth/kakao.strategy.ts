@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { PassportStrategy } from "@nestjs/passport";
-import { UserRepository } from "@root/entities/repositories/user.repository";
-import { Strategy } from "passport-kakao";
-import { AuthService } from "./auth.service";
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
+import { UserRepository } from '@root/entities/repositories/user.repository';
+import { Strategy } from 'passport-kakao';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class KakaoStrategy extends PassportStrategy(Strategy) {
@@ -12,8 +12,8 @@ export class KakaoStrategy extends PassportStrategy(Strategy) {
     private authService: AuthService,
   ) {
     super({
-        clientID: configService.get('KAKAO_ID'),
-        callbackURL: configService.get('KAKAO_CALLBACK_URL'),
+      clientID: configService.get('KAKAO_ID'),
+      callbackURL: configService.get('KAKAO_CALLBACK_URL'),
     });
   }
 
@@ -33,18 +33,18 @@ export class KakaoStrategy extends PassportStrategy(Strategy) {
     // });
     // console.log('\n  - userExist:');
     // console.log(userExist);
-    
+
     const payload = {
-        name: kakao_account.profile.nickname,
-        oAuthId: profileJson.id,
-        email: 
-          kakao_account.has_email && !kakao_account.email_needs_agreement 
-            ? kakao_account.email 
-            : null,
-        gender: 
-          kakao_account.has_gender && !kakao_account.gender_needs_agreement
-            ? kakao_account.gender
-            : null,
+      name: kakao_account.profile.nickname,
+      oAuthId: profileJson.id,
+      email:
+        kakao_account.has_email && !kakao_account.email_needs_agreement
+          ? kakao_account.email
+          : null,
+      gender:
+        kakao_account.has_gender && !kakao_account.gender_needs_agreement
+          ? kakao_account.gender
+          : null,
     };
     done(null, payload);
   }

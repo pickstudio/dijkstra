@@ -16,7 +16,7 @@ export class PhoneNumberEntity extends TimeColumns {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty({description: '전화번호', example: '01012345678'})
+  @ApiProperty({ description: '전화번호', example: '01012345678' })
   @IsString()
   @Column()
   phoneNumber: string;
