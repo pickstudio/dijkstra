@@ -257,4 +257,63 @@ export class UserService {
         console.log(result);
         return result;
     }
+
+    async getAcquaintancesForTest(userId: number, pageParamDto: PageParamDto) {
+        /* 
+        예시 상황:
+            A ~ F가 있을 때,
+            A의 전화번호부에는 가입자 B ~ E까지의 전화번호가 저장되어 있고
+            가입자 B ~ D의 전화번호부에는 F가 존재할 때,
+            A에게 F를 노출하면서 Bridge(중간다리) 유저로 B~D가 함께 알고 있음을 표시.
+        */
+
+        // 나와 아는 사람(전화번호부 조회, 1다리)
+        // [phoneNumberId(전화번호부에 등록된 사람), phoneNickname(저장된 별명)]
+        const bridge = await this.addressBookRepository.find({
+            select: {
+                phoneNumberId: true,
+                phoneNickname: true,
+            },
+            where: {
+                userId,
+            },
+            ...pageParamDto,
+        });
+        console.log(bridge);
+
+        // bridge객체의 phoneNumberId: number 중에서 key를 제거하고 Array<Number>형태로 변환
+        const bridgeArray = bridge.map((el) => {
+            return el.phoneNumberId;
+        });
+
+        // 전화번호 1다리를 건너 아는 사람 조회
+        // [userId(한 다리 건넌 사람), phoneNumberId(내 전화번호부에 등록된 사람)]
+        const newFaceIds = await this.addressBookRepository.find({
+            select: {
+                userId: true,
+                phoneNumberId: true,
+            },
+            where: {
+                userId: Not(userId),
+                phoneNumberId: In(bridgeArray),
+            },
+        });
+        console.log(newFaceIds);
+
+        // 위에서 반환받은 객체를 bridgeArray와 같이 변환
+        // const newFaceIdArray = newFaceIds.map((el) => {
+        //     return el.userId;
+        // });
+
+        // 한 다리 건넌 사람과 같이 아는 전화번호의 id로 누구를 통했는지 추적
+        const chasingNickname = newFaceIds.map((el) => {
+            const target = bridge.filter((el_bridge) => {
+                return el_bridge.phoneNumberId == el.phoneNumberId;
+            });
+            return {
+                ...el,
+                bridgeNickname: [...target],
+            };
+        });
+    }
 }
