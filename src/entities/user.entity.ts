@@ -51,7 +51,7 @@ export class UserEntity extends TimeColumns {
     @Column()
     birth: Date;
 
-    @ApiProperty({ description: '성별', example: 'Male' })
+    @ApiProperty({ description: '성별', example: 'male' })
     @IsGender()
     @Column({ nullable: true })
     gender: string;
@@ -64,7 +64,7 @@ export class UserEntity extends TimeColumns {
 
     @ApiProperty({ description: 'OAuth 아이디', example: 12345678 })
     @IsNotEmptyString(1, 100)
-    @Column({ length: 100, nullable:true })
+    @Column({ length: 100, nullable: true })
     oAuthId: string;
 
     /**
