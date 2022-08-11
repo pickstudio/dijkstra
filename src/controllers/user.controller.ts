@@ -20,8 +20,9 @@ export class UserController {
     @JwtGuardWithApiBearerAuth()
     @Get('profile')
     @ApiOperation({ summary: '유저의 프로필 조회' })
-    getProfile(@User() user: UserEntity) {
-        return user;
+    async getProfile(@UserId() userId: number) {
+        console.log(userId);
+        return await this.userService.getProfile(userId);
     }
 
     @JwtGuardWithApiBearerAuth()

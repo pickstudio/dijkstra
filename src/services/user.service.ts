@@ -60,6 +60,20 @@ export class UserService {
         });
     }
 
+    async getProfile(userId) {
+        const {email, ...profile} = await this.userRepository.findOne({
+            where: {
+                id: userId,
+            },
+            select: {
+                name: true,
+                birth: true,
+                gender: true,
+            }
+        });
+        return profile
+    }
+
     async update(userId: number, updateUserDto: UpdateUserDto) {
         if (updateUserDto.password) {
             updateUserDto.password = await bcrypt.hash(updateUserDto.password, 8);
