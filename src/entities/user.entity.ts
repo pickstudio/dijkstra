@@ -64,7 +64,7 @@ export class UserEntity extends TimeColumns {
 
     @ApiProperty({ description: 'OAuth 아이디', example: 12345678 })
     @IsNotEmptyString(1, 100)
-    @Column({ length: 100 })
+    @Column({ length: 100, nullable:true })
     oAuthId: string;
 
     /**

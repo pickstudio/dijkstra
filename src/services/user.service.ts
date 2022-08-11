@@ -48,6 +48,18 @@ export class UserService {
         });
     }
 
+    async getOneUserByEmailForAuth(userEmail: string) {
+        return await this.userRepository.findOne({
+            where: { email: userEmail },
+            select: {
+                email: true,
+                password: true,
+                name: true,
+                id: true
+            }
+        });
+    }
+
     async update(userId: number, updateUserDto: UpdateUserDto) {
         if (updateUserDto.password) {
             updateUserDto.password = await bcrypt.hash(updateUserDto.password, 8);
@@ -64,8 +76,9 @@ export class UserService {
 
         return await this.userRepository.save({
             ...createUserDto,
-            privder: 'local',
+            provider: 'local',
             password: hashedPassword,
+            oAuthId: null
         });
     }
     async deleteOneUser(userIdToDelete: number) {
