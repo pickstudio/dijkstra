@@ -55,13 +55,13 @@ export class UserService {
                 email: true,
                 password: true,
                 name: true,
-                id: true
-            }
+                id: true,
+            },
         });
     }
 
     async getProfile(userId) {
-        const {email, ...profile} = await this.userRepository.findOne({
+        const { email, ...profile } = await this.userRepository.findOne({
             where: {
                 id: userId,
             },
@@ -69,9 +69,9 @@ export class UserService {
                 name: true,
                 birth: true,
                 gender: true,
-            }
+            },
         });
-        return profile
+        return profile;
     }
 
     async update(userId: number, updateUserDto: UpdateUserDto) {
@@ -92,7 +92,7 @@ export class UserService {
             ...createUserDto,
             provider: 'local',
             password: hashedPassword,
-            oAuthId: null
+            oAuthId: null,
         });
     }
     async deleteOneUser(userIdToDelete: number) {
@@ -279,6 +279,7 @@ export class UserService {
             },
             ...pageParamDto,
         });
+        console.log('\nbridge:');
         console.log(bridge);
 
         // bridge객체의 phoneNumberId: number 중에서 key를 제거하고 Array<Number>형태로 변환
@@ -298,6 +299,7 @@ export class UserService {
                 phoneNumberId: In(bridgeArray),
             },
         });
+        console.log('\nnewFaceIds:');
         console.log(newFaceIds);
 
         // 위에서 반환받은 객체를 bridgeArray와 같이 변환
@@ -307,13 +309,41 @@ export class UserService {
 
         // 한 다리 건넌 사람과 같이 아는 전화번호의 id로 누구를 통했는지 추적
         const chasingNickname = newFaceIds.map((el) => {
-            const target = bridge.filter((el_bridge) => {
-                return el_bridge.phoneNumberId == el.phoneNumberId;
-            });
+            const target = bridge
+                .filter((el_bridge) => {
+                    return el_bridge.phoneNumberId == el.phoneNumberId;
+                })
+                .map((el) => {
+                    return el.phoneNickname;
+                });
             return {
-                ...el,
+                userId: el.userId,
                 bridgeNickname: [...target],
             };
         });
+        console.log('\nchasingNickname: ');
+        console.log(chasingNickname);
+
+        const mergedArray = Object.values(
+            chasingNickname.reduce((obj, item) => {
+                const uid = Number(item.userId);
+                obj[uid] ? obj[uid].bridgeNickname.push(...item.bridgeNickname) : (obj[uid] = { ...item });
+                return obj;
+            }, {}),
+        );
+        console.log('\nmergedArray: ');
+        console.log(mergedArray);
+
+        const mergedArrayWithProfile = await mergedArray.map(
+            async (el: { userId: number; bridgeNickname: Array<string> }) => {
+                const target_profile = await this.userRepository.find({
+                    where: { id: el.userId },
+                });
+                console.log(target_profile);
+                return { ...target_profile, bridgeNickname: el.bridgeNickname };
+            },
+        );
+        console.log('\nmergedArrayWithProfile: ');
+        console.log(mergedArrayWithProfile);
     }
 }

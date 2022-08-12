@@ -33,6 +33,13 @@ export class UserController {
     }
 
     @JwtGuardWithApiBearerAuth()
+    @ApiOperation({ summary: '[test]유저와 1다리 건너 아는 다른 사용자 조회' })
+    @Get('acquaintance-test')
+    async getAcquaintancesTest(@UserId() userId: number, @PageParams() pageParamDto: PageParamDto) {
+        return await this.userService.getAcquaintancesForTest(userId, pageParamDto);
+    }
+
+    @JwtGuardWithApiBearerAuth()
     @Get('address-book')
     @ApiOperation({ summary: '유저의 전화번호부 조회' })
     async getAddressBook(@UserId() userId: number) {
