@@ -9,7 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
-import { IpFilter } from './middlewares/ip.filter';
+import { IpFilterMiddleware } from './middlewares/ip.filter';
+
 import { UserModule } from './modules/user.module';
 
 @Module({
@@ -45,10 +46,6 @@ import { UserModule } from './modules/user.module';
         {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
-        },
-        {
-            provide: APP_FILTER,
-            useClass: IpFilter,
         },
         {
             provide: APP_INTERCEPTOR,
