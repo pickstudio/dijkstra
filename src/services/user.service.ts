@@ -1,17 +1,14 @@
-import { BadRequestException, Injectable, MethodNotAllowedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AddressBookDto } from '@root/dto/address-book.dto';
 import { SearchPaginationDto } from '@root/dto/common/search-pagination.dto';
 import { CreateUserDto } from '@root/dto/create-user.dto';
 import { UpdateUserDto } from '@root/dto/update-user.dto';
-import { UserHasPhoneNumberEntity } from '@root/entities/address-book.entity';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserHasPhoneNumberRepository } from '@root/entities/repositories/address-book.repository';
 import { UserRepository } from '@root/entities/repositories/user.repository';
 import { ERROR_MESSAGE } from '@root/utils/error-message';
 import { getSkipAndTake } from '@root/utils/functions/get-skip-and-take.function';
 import * as bcrypt from 'bcrypt';
-import { plainToClass } from 'class-transformer';
 import { In, Not } from 'typeorm';
 
 @Injectable()
@@ -24,8 +21,8 @@ export class UserService {
 
     async getOneByEmailWithDeleted(email: string) {
         const user = await this.userRepository.findOne({
-            withDeleted: true,
             where: { email },
+            withDeleted: true,
         });
 
         return user;
@@ -43,15 +40,15 @@ export class UserService {
         return user;
     }
 
-    async getOneUserByEmail(userEmail: string) {
+    async getOneUserByEmail(email: string) {
         return await this.userRepository.findOne({
-            where: { email: userEmail },
+            where: { email },
         });
     }
 
-    async getOneUserByEmailForAuth(userEmail: string) {
+    async getOneUserByEmailForAuth(email: string) {
         return await this.userRepository.findOne({
-            where: { email: userEmail },
+            where: { email },
             select: {
                 email: true,
                 password: true,
@@ -82,10 +79,6 @@ export class UserService {
         return await this.userRepository.update({ id: userId }, updateUserDto);
     }
 
-    async getAll() {
-        return await this.userRepository.find();
-    }
-
     async saveUser(createUserDto: CreateUserDto) {
         const hashedPassword = await bcrypt.hash(createUserDto.password, 8);
 
@@ -106,7 +99,7 @@ export class UserService {
         });
     }
 
-    async getAddressBook(userId) {
+    async getAddressBook(userId: number) {
         const result = await this.addressBookRepository.find({
             relations: {
                 phoneNumber: true,
@@ -129,51 +122,13 @@ export class UserService {
         });
     }
 
-    async updateAddressBook(userId: number, addressBookDto: AddressBookDto) {
-        // 1. DB에 저장된 휴대폰 번호 조회
-        const savedPhoneNumbers = await PhoneNumberEntity.find({
-            where: {
-                phoneNumber: In(addressBookDto.addressBook.map((elem) => elem.phone)),
-            },
-        });
-        // 2. Array<Number>형태로 변환
-        const savedOnlyNumbers = savedPhoneNumbers.map((entity) => {
-            return entity.phoneNumber;
-        });
-        // 3. 2번의 Array를 통해 저장되지 않은 번호 추출
-        const unsavedPhoneNumbers = addressBookDto.addressBook.filter((item) => {
-            if (savedOnlyNumbers.includes(item.phone)) {
-                return false;
-            }
-            return true;
-        });
-        // 4. 3번에서 추출된 번호 저장
-        const newSavedPhoneNumbers = await PhoneNumberEntity.save(
-            unsavedPhoneNumbers.map((elem) =>
-                plainToClass(PhoneNumberEntity, {
-                    phoneNumber: elem.phone,
-                }),
-            ),
-        );
-        // 5. userHasPhoneNumberEntity 형태로 가공: [userId, phoneNumberId, phoneNickname]
-        const phoneNumbers = [...newSavedPhoneNumbers, ...savedPhoneNumbers];
-        const updatePhoneBook = phoneNumbers.map((phoneNumberEntity) =>
-            plainToClass(UserHasPhoneNumberEntity, {
-                userId: userId,
-                phoneNumberId: phoneNumberEntity.id,
-                phoneNickname: addressBookDto.addressBook.find((elem) => elem.phone == phoneNumberEntity.phoneNumber)
-                    .name,
-            }),
-        );
-        // 6. 신규 저장 번호와 기존 저장 번호 모두 전화번호부 등록(upsert)
-        const result = await this.addressBookRepository.upsert(updatePhoneBook, {
-            conflictPaths: ['userId', 'phoneNumberId'],
-            skipUpdateIfNoValuesChanged: true,
+    async getMyPhoneNumber(userId: number): Promise<PhoneNumberEntity[]> {
+        const { addressBook } = await this.userRepository.findOne({
+            relations: { addressBook: true },
+            where: { id: userId },
         });
 
-        // 7. 반환형태 미지정으로 인한 오류 반환
-        throw new MethodNotAllowedException();
-        // return await this.userRepository.update(user, useraddressBookDto)
+        return addressBook;
     }
 
     async getAcquaintances(userId: number, searchPaginationDto: SearchPaginationDto) {

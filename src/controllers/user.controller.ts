@@ -7,6 +7,7 @@ import { AddressBookDto } from '@root/dto/address-book.dto';
 import { SearchPaginationDto } from '@root/dto/common/search-pagination.dto';
 import { CreateUserDto } from '@root/dto/create-user.dto';
 import { UpdateUserDto } from '@root/dto/update-user.dto';
+import { PhoneNumberService } from '@root/services/phone-number.service';
 import { UserService } from '@root/services/user.service';
 import { ERROR_MESSAGE } from '@root/utils/error-message';
 
@@ -14,12 +15,11 @@ import { ERROR_MESSAGE } from '@root/utils/error-message';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-    constructor(private readonly userService: UserService) {}
+    constructor(private readonly userService: UserService, private readonly phoneNumberService: PhoneNumberService) {}
 
     @Get('profile')
     @ApiOperation({ summary: '유저의 프로필 조회' })
     async getProfile(@UserId() userId: number) {
-        console.log(userId);
         return await this.userService.getProfile(userId);
     }
 
@@ -43,8 +43,11 @@ export class UserController {
 
     @ApiOperation({ summary: '유저의 전화번호부 등록/갱신' })
     @Put('address-book')
-    async updateAddressBook(@UserId() userId: number, @Body() addressBookDto: AddressBookDto) {
-        return await this.userService.updateAddressBook(userId, addressBookDto);
+    async updateAddressBook(@UserId() userId: number, @Body() { addressBooks }: AddressBookDto) {
+        const phoneNumbers = addressBooks.map((el) => el.phoneNumber);
+        const savedPhoneNumber = await this.phoneNumberService.saveOrIgnore(phoneNumbers);
+        await this.phoneNumberService.register(userId, savedPhoneNumber, addressBooks);
+        return true;
     }
 
     @ApiParam({ name: 'id', description: '조회할 유저의 아이디', example: 1 })
@@ -75,12 +78,6 @@ export class UserController {
     @ApiOperation({ summary: '유저의 정보 삭제' })
     @Delete()
     async deleteUser(@UserId() userIdToDelete: number) {
-        const deletedUser = await this.userService.getOneUser(userIdToDelete);
-        return await this.userService.deleteOneUser(deletedUser.id);
-    }
-
-    @ApiOperation({ summary: '모든 유저를 조회한다 /  실제 서비스에서 사용하지 않을 로직' })
-    async getUser() {
-        return await this.userService.getAll();
+        return await this.userService.deleteOneUser(userIdToDelete);
     }
 }

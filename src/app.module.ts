@@ -1,16 +1,16 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as path from 'path';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { HttpExceptionFilter } from './filters/http-exception.filter';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
-import { TransformInterceptor } from './interceptors/transform.interceptor';
+import { AppController } from '@root/app.controller';
+import { AppService } from '@root/app.service';
+import { AuthModule } from '@root/auth/auth.module';
+import { HttpExceptionFilter } from '@root/filters/http-exception.filter';
+import { LoggingInterceptor } from '@root/interceptors/logging.interceptor';
+import { TransformInterceptor } from '@root/interceptors/transform.interceptor';
 
-import { UserModule } from './modules/user.module';
+import { UserModule } from '@root/modules/user.module';
 
 @Module({
     imports: [
