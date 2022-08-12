@@ -129,7 +129,7 @@ export class UserService {
         });
     }
 
-    async updateAddressBook(userId: any, addressBookDto: AddressBookDto) {
+    async updateAddressBook(userId: number, addressBookDto: AddressBookDto) {
         // 1. DB에 저장된 휴대폰 번호 조회
         const savedPhoneNumbers = await PhoneNumberEntity.find({
             where: {

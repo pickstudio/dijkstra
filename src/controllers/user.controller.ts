@@ -1,17 +1,5 @@
-import {
-    BadRequestException,
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    ParseIntPipe,
-    Post,
-    Put,
-    UseGuards,
-} from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@root/auth/guards/jwt-auth.guard';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtGuardWithApiBearerAuth } from '@root/decorators/api-bearer-with-jwt-guard.decorator';
 import { PageParams } from '@root/decorators/page-params.decorator';
 import { UserId } from '@root/decorators/user-id.decorator';
@@ -22,13 +10,12 @@ import { UpdateUserDto } from '@root/dto/update-user.dto';
 import { UserService } from '@root/services/user.service';
 import { ERROR_MESSAGE } from '@root/utils/error-message';
 
-@UseGuards(JwtAuthGuard)
+@JwtGuardWithApiBearerAuth()
 @ApiTags('User')
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @JwtGuardWithApiBearerAuth()
     @Get('profile')
     @ApiOperation({ summary: '유저의 프로필 조회' })
     async getProfile(@UserId() userId: number) {
@@ -36,29 +23,24 @@ export class UserController {
         return await this.userService.getProfile(userId);
     }
 
-    @JwtGuardWithApiBearerAuth()
     @ApiOperation({ summary: '유저와 1다리 건너 아는 다른 사용자 조회' })
     @Get('acquaintance')
-    async getAcquaintances(@UserId() userId: number, @PageParams() SearchPaginationDto: SearchPaginationDto) {
-        return await this.userService.getAcquaintances(userId, SearchPaginationDto);
+    async getAcquaintances(@UserId() userId: number, @PageParams() searchPaginationDto: SearchPaginationDto) {
+        return await this.userService.getAcquaintances(userId, searchPaginationDto);
     }
 
-    @JwtGuardWithApiBearerAuth()
     @ApiOperation({ summary: '[test]유저와 1다리 건너 아는 다른 사용자 조회' })
     @Get('acquaintance-test')
-    async getAcquaintancesTest(@UserId() userId: number, @PageParams() SearchPaginationDto: SearchPaginationDto) {
-        return await this.userService.getAcquaintancesForTest(userId, SearchPaginationDto);
+    async getAcquaintancesTest(@UserId() userId: number, @PageParams() searchPaginationDto: SearchPaginationDto) {
+        return await this.userService.getAcquaintancesForTest(userId, searchPaginationDto);
     }
 
-    @JwtGuardWithApiBearerAuth()
     @Get('address-book')
     @ApiOperation({ summary: '유저의 전화번호부 조회' })
     async getAddressBook(@UserId() userId: number) {
         return await this.userService.getAddressBook(userId);
     }
 
-    @ApiBody({ type: AddressBookDto })
-    @JwtGuardWithApiBearerAuth()
     @ApiOperation({ summary: '유저의 전화번호부 등록/갱신' })
     @Put('address-book')
     async updateAddressBook(@UserId() userId: number, @Body() addressBookDto: AddressBookDto) {
