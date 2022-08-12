@@ -321,9 +321,10 @@ export class UserService {
                 bridgeNickname: [...target],
             };
         });
-        console.log('\nchasingNickname: ');
-        console.log(chasingNickname);
+        // console.log('\nchasingNickname: ');
+        // console.log(chasingNickname);
 
+        // 추적한 bridgeNickname들을 userId 값으로 묶어 배열화
         const mergedArray = Object.values(
             chasingNickname.reduce((obj, item) => {
                 const uid = Number(item.userId);
@@ -334,16 +335,34 @@ export class UserService {
         console.log('\nmergedArray: ');
         console.log(mergedArray);
 
-        const mergedArrayWithProfile = await mergedArray.map(
-            async (el: { userId: number; bridgeNickname: Array<string> }) => {
-                const target_profile = await this.userRepository.find({
-                    where: { id: el.userId },
-                });
-                console.log(target_profile);
-                return { ...target_profile, bridgeNickname: el.bridgeNickname };
+        // userId에 대한 프로필 조회
+        const profilesForMergedArray = await this.userRepository.find({
+            where: {
+                id: In(
+                    mergedArray.map((el: { userId: number }) => {
+                        return el.userId;
+                    }),
+                ),
             },
-        );
+            select: {
+                id: true,
+                name: true,
+                gender: true,
+                birth: true,
+            },
+        });
+        console.log('profilesForMergedArray: ');
+        console.log(profilesForMergedArray);
+
+        // 조회한 프로필과 bridgeNickname 배열을 엮어 반환
+        const mergedArrayWithProfile = mergedArray.map((el: { userId: number; bridgeNickname: Array<string> }) => {
+            const target_profile = profilesForMergedArray.find((el_profile) => {
+                return el_profile.id == el.userId;
+            });
+            return { ...target_profile, bridgeNicknames: el.bridgeNickname };
+        });
         console.log('\nmergedArrayWithProfile: ');
         console.log(mergedArrayWithProfile);
+        return mergedArrayWithProfile;
     }
 }
