@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, MethodNotAllowedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddressBookDto } from '@root/dto/address-book.dto';
-import { PageParamDto } from '@root/dto/common/search-pagination.dto';
+import { SearchPaginationDto } from '@root/dto/common/search-pagination.dto';
 import { CreateUserDto } from '@root/dto/create-user.dto';
 import { UpdateUserDto } from '@root/dto/update-user.dto';
 import { UserHasPhoneNumberEntity } from '@root/entities/address-book.entity';
@@ -60,7 +60,7 @@ export class UserService {
         });
     }
 
-    async getProfile(userId) {
+    async getProfile(userId: number) {
         const { email, ...profile } = await this.userRepository.findOne({
             where: {
                 id: userId,
@@ -175,7 +175,7 @@ export class UserService {
         // return await this.userRepository.update(user, useraddressBookDto)
     }
 
-    async getAcquaintances(userId: number, pageParamDto: PageParamDto) {
+    async getAcquaintances(userId: number, SearchPaginationDto: SearchPaginationDto) {
         // 나와 아는 사람(전화번호부 조회, 1다리)
         // [phoneNumberId(전화번호부에 등록된 사람), phoneNickname(저장된 별명)]
         const bridge = await this.addressBookRepository.find({
@@ -186,9 +186,8 @@ export class UserService {
             where: {
                 userId,
             },
-            ...pageParamDto,
+            ...SearchPaginationDto,
         });
-        console.log(bridge);
 
         // bridge객체의 phoneNumberId: number 중에서 key를 제거하고 Array<Number>형태로 변환
         const bridgeArray = bridge.map((el) => {
@@ -258,7 +257,7 @@ export class UserService {
         return result;
     }
 
-    async getAcquaintancesForTest(userId: number, pageParamDto: PageParamDto) {
+    async getAcquaintancesForTest(userId: number, SearchPaginationDto: SearchPaginationDto) {
         /* 
         예시 상황:
             A ~ F가 있을 때,
@@ -277,7 +276,7 @@ export class UserService {
             where: {
                 userId,
             },
-            ...pageParamDto,
+            ...SearchPaginationDto,
         });
         console.log('\nbridge:');
         console.log(bridge);

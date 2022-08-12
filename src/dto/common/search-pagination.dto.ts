@@ -2,7 +2,7 @@ import { IsInt } from '@nestjs/class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { NumberRange } from '@root/decorators/number-range.decorator';
 
-export class PageParamDto {
+export class SearchPaginationDto {
     @ApiProperty({ description: '페이지' })
     @IsInt()
     page: number;
