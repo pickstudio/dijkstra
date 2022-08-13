@@ -18,7 +18,7 @@
         "schema:drop": "ts-node ./node_modules/typeorm/cli.js schema:drop -d ./data-source.ts",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test": "cross-env NODE_ENV=local jest",
-        "test:watch": "cross-env NODE_ENV=local jest --watch",
+        "test:watch": "cross-env NODE_ENV=local jest --watch --runInBand --detectOpenHandles --no-cache --config ./jest-controller.json",
         "test:wd": "cross-env NODE_ENV=local jest --watch --detectOpenHandles",
         "test:cov": "cross-env NODE_ENV=local jest --coverage",
         "test:e2e": "cross-env NODE_ENV=local jest --config ./test/jest-e2e.json"

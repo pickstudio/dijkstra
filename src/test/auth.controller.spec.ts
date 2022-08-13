@@ -2,16 +2,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '@root/modules/user.module';
-import { AuthController } from './auth.controller';
-import { AuthModule } from './auth.module';
-import { AuthService } from './auth.service';
+import { AuthController } from '../auth/auth.controller';
+import { AuthModule } from '../auth/auth.module';
+import { AuthService } from '../auth/auth.service';
 import * as path from 'path';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { LocalStrategy } from './strategies/local.strategy';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from '../auth/strategies/local.strategy';
+import { JwtStrategy } from '../auth/strategies/jwt.strategy';
 import { UserRepository } from '@root/entities/repositories/user.repository';
-import { LoginInfo } from './auth.input';
+import { LoginInfo } from '../auth/auth.input';
 import { plainToClass } from 'class-transformer';
 
 describe('AuthController', () => {
@@ -38,7 +38,7 @@ describe('AuthController', () => {
                             password: configService.get('DB_PASSWORD'),
                             database: configService.get('DB_DATABASE'),
                             entities: [path.join(__dirname, '../entities/*.entity{.ts,.js}')],
-                            synchronize: true,
+                            synchronize: false,
                             socketPath: '/tmp/mysql.sock',
                             logging: false,
                         };
