@@ -1,15 +1,10 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from '@root/modules/user.module';
 import { AuthController } from '../auth/auth.controller';
 import { AuthModule } from '../auth/auth.module';
 import { AuthService } from '../auth/auth.service';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { LocalStrategy } from '../auth/strategies/local.strategy';
-import { JwtStrategy } from '../auth/strategies/jwt.strategy';
-import { UserRepository } from '@root/entities/repositories/user.repository';
+import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '@root/entities/user.entity';
 
 import * as bcrypt from 'bcrypt';
@@ -40,17 +35,14 @@ describe('AuthController', () => {
                             database: configService.get('DB_DATABASE'),
                             entities: [path.join(__dirname, '../entities/*.entity{.ts,.js}')],
                             synchronize: false,
-                            socketPath: '/tmp/mysql.sock',
                             logging: false,
                             retryAttempts: 1,
+                            ...{ socketPath: configService.get('NODE_ENV') === 'local' && '/tmp/mysql.sock' },
                         };
                     },
                 }),
-
                 AuthModule,
-                UserModule,
             ],
-            providers: [AuthService, LocalStrategy, JwtStrategy, UserRepository, JwtService],
         }).compile();
 
         controller = module.get<AuthController>(AuthController);
@@ -109,15 +101,6 @@ describe('AuthController', () => {
             expect(state).toBeDefined();
             expect(decoded.username).toBeDefined();
             expect(decoded.userId).toBeDefined();
-        });
-
-        it('1.2. 로그인 실패', async () => {
-            // const { email, password } = wrongInfo;
-            // const userEntity = await service.validateUser(email, password);
-            // const state = await controller.login(userEntity);
-            // const decoded = jwtService.decode(state.access_token).valueOf();
-            // expect(decoded['username']).toEqual('UnauthorizedException');
-            // expect(decoded['sub']).toBeUndefined();
         });
     });
 });

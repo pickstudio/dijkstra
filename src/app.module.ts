@@ -31,8 +31,8 @@ import { UserModule } from '@root/modules/user.module';
                     database: configService.get('DB_DATABASE'),
                     entities: [path.join(__dirname, './entities/*.entity{.ts,.js}')],
                     synchronize: true,
-                    socketPath: '/tmp/mysql.sock',
                     logging: true,
+                    ...{ socketPath: configService.get('NODE_ENV') === 'local' && '/tmp/mysql.sock' },
                 };
             },
         }),

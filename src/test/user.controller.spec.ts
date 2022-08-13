@@ -31,8 +31,8 @@ describe('UserController', () => {
                             database: configService.get('DB_DATABASE'),
                             entities: [path.join(__dirname, '../entities/*.entity{.ts,.js}')],
                             synchronize: false,
-                            socketPath: '/tmp/mysql.sock',
                             logging: false,
+                            ...{ socketPath: configService.get('NODE_ENV') === 'local' && '/tmp/mysql.sock' },
                         };
                     },
                 }),
