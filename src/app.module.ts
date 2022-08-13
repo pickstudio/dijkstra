@@ -14,6 +14,8 @@ import { UserModule } from './modules/user.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      ignoreEnvFile: process.env.NODE_ENV === 'local',
+      ignoreEnvVars: process.env.NODE_ENV !== 'local',
       envFilePath: `.env.${process.env.NODE_ENV}`, // local, test, dev, prod
     }),
     TypeOrmModule.forRootAsync({
@@ -22,14 +24,13 @@ import { UserModule } from './modules/user.module';
       useFactory: (configService: ConfigService) => {
         return {
           type: 'mysql',
-          host: 'localhost',
-          port: 3306,
+          host: configService.get('DB_HOST'),
+          port: parseInt(configService.get('DB_PORT'), 10),
           username: configService.get('DB_USERNAME'),
           password: configService.get('DB_PASSWORD'),
           database: configService.get('DB_DATABASE'),
           entities: [path.join(__dirname, './entities/*.entity{.ts,.js}')],
-          synchronize: true,
-          socketPath: '/tmp/mysql.sock',
+          synchronize: process.env.NODE_ENV === 'local',
           logging: true,
         };
       },
