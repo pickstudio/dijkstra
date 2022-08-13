@@ -15,7 +15,7 @@ on:
   push:
     branches:
       - dev
-      - feature/cicd
+      - main
 
 jobs:
   deploy:
