@@ -10,9 +10,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const { path, user, body, query } = request;
 
         console.log(
-            `error\n${request.method} ${path} time : ${Date.now() - request.now}ms\nuser : ${JSON.stringify(
-                user,
-            )}\nbody : ${JSON.stringify(body)}\nquery : ${JSON.stringify(query)}`,
+            `error: ${exception.name} => ${exception.message}\n${request.method} ${path} time : ${
+                Date.now() - request.now
+            }ms\nuser : ${JSON.stringify(user)}\nbody : ${JSON.stringify(body)}\nquery : ${JSON.stringify(query)}\n`,
         );
 
         const intervalError = HttpStatus.INTERNAL_SERVER_ERROR;
