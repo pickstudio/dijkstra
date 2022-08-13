@@ -4,16 +4,15 @@ import { UserHasPhoneNumberRepository } from '@root/entities/repositories/addres
 import { UserRepository } from '@root/entities/repositories/user.repository';
 import { UserService } from '@root/services/user.service';
 import { CustomTypeOrmModule } from '@root/settings/typeorm/custom-typeorm.module';
+import { PhoneNumberModule } from './phone-number.module';
 
 @Module({
-  imports: [
-    CustomTypeOrmModule.forCustomRepository([
-      UserRepository,
-      UserHasPhoneNumberRepository,
-    ]),
-  ],
-  exports: [UserService],
-  controllers: [UserController],
-  providers: [UserService],
+    imports: [
+        CustomTypeOrmModule.forCustomRepository([UserRepository, UserHasPhoneNumberRepository]),
+        PhoneNumberModule,
+    ],
+    controllers: [UserController],
+    providers: [UserService],
+    exports: [UserService],
 })
 export class UserModule {}

@@ -16,7 +16,7 @@ export class AuthController {
     @ApiBody({ description: '로그인', type: LoginInfo })
     @UseGuards(LocalAuthGuard)
     @Post('login')
-    async login(@User() user: UserEntity) {
+    login(@User() user: UserEntity) {
         return this.authService.login(user);
     }
 
