@@ -59,7 +59,7 @@ export class UserEntity extends TimeColumns {
     @ApiProperty({ description: 'OAuth 프로바이더', example: 'kakao' })
     @IsProvider()
     @IsOptional()
-    @Column()
+    @Column({ nullable: true })
     provider: string;
 
     @ApiProperty({ description: 'OAuth 아이디', example: 12345678 })
