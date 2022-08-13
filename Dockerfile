@@ -13,4 +13,4 @@ COPY src ./src
 RUN npm install
 RUN npm run build
 
-COMMAND ["echo", "you must define about command"]
+CMD ["echo", "you must define about command"]
