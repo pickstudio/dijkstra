@@ -1,0 +1,118 @@
+name: deploy.ecs.development
+
+env:
+  ENV: development
+  SERVICE: dijkstra
+  FAMILY_NAME: dijkstra_dijkstra_server_development
+  AWS_REGION: ap-northeast-2
+  AWS_ACCOUNT_ID: 755991664675
+  ECS_CLUSTER_NAME: pickstudio-development
+  ECS_SERVICE_NAME: dijkstra_server
+  ECR_REPOSITORY_NAME: dijkstra/dijkstra_server
+  CONTAINER_NAME: dijkstra_server
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: install jq for task definition
+        uses: sergeysova/jq-action@v2
+        with:
+          cmd: jq -n env
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY_NAME: ${{ env.ECR_REPOSITORY_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NAME --all-tags
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY_NAME:$IMAGE_TAG"
+
+
+      - name: Get AWS ECS task definition.json
+        env:
+          FAMILY_NAME: ${{ env.FAMILY_NAME }}
+        run: |
+          aws ecs describe-task-definition \
+             --task-definition $FAMILY_NAME \
+             --query taskDefinition > task_def.json
+
+      - name: Set image tag
+        id: task_definition
+        env:
+          CONTAINER_NAME_HTTP: ${{ env.CONTAINER_NAME_HTTP }}
+          CONTAINER_NAME_SCHEDULER: ${{ env.CONTAINER_NAME_SCHEDULER }}
+          IMAGE: ${{ steps.build-image.outputs.image }}
+        run: |
+          cat task_def.json | \
+            jq ".containerDefinitions |= map(if .name == \"${CONTAINER_NAME}\" then .image = \"${IMAGE}\" else . end)" \
+            > task_definition.json
+
+          echo "::set-output name=json::`cat ./task_definition.json`"
+          cat ./task_definition.json
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ./task_definition.json
+          service: ${{ env.ECS_SERVICE_NAME }}
+          cluster: ${{ env.ECS_CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: "#dijkstra-developers"
+          username: "Dijkstra Deployer"
+          fields: action,author,repo,commit
+          text: |
+            Deployed at `Development` *Automatically*:
+              - <https://${{ env.AWS_REGION }}.console.aws.amazon.com/ecs/home?region=${{ env.AWS_REGION }}#/clusters/${{ env.ECS_CLUSTER_NAME }}/services/${{ env.ECS_SERVICE_NAME }}/deployments|deployment>
+              - <https://${{ env.AWS_REGION }}.console.aws.amazon.com/ecs/home?region=${{ env.AWS_REGION }}#/clusters/${{ env.ECS_CLUSTER_NAME }}/services/${{ env.ECS_SERVICE_NAME }}/metrics|dashboard>
+              - <https://${{ env.AWS_REGION }}.console.aws.amazon.com/cloudwatch/home?region=${{ env.AWS_REGION }}#logsV2:log-groups/log-group/$252Fecs$252F${{ env.ENV }}$252F${{ env.SERVICE }}$252F${{ env.ECS_SERVICE_NAME }}|logs>
+              - Docker 직접 들어가는 법 `ECS의 EC2머신에 접근해서 들어가야함`
+              - 콘솔에서 로그 보는 법 `aws logs tail /ecs/${{ env.ENV }}/${{ env.SERVICE }}/${{ env.ECS_SERVICE_NAME }} --follow`
+            `Image Name`: <https://${{ env.AWS_REGION }}.console.aws.amazon.com/ecr/repositories/private/${{ env.AWS_ACCOUNT_ID }}/${{ env.ECR_REPOSITORY_NAME }}?region=${{ env.AWS_REGION }}|${{ env.ECR_REPOSITORY_NAME }}>
+            `Image Tag`: ${{ steps.version.outputs.version }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: success()
+
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: "#dijkstra-developers"
+          username: "Dijkstra Deployer"
+          fields: action,author,repo,commit
+          text: |
+            :warning: Failed to prepare for `Development` deployment!
+
+            `Image Name`: <https://${{ env.AWS_REGION }}.console.aws.amazon.com/ecr/repositories/private/${{ env.AWS_ACCOUNT_ID }}/${{ env.ECR_REPOSITORY_NAME }}?region=${{ env.AWS_REGION }}|${{ env.ECR_REPOSITORY_NAME }}>
+            `Image Tag`: ${{ steps.version.outputs.version }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: failure()
