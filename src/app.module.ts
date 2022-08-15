@@ -55,5 +55,6 @@ import { UserModule } from '@root/modules/user.module';
             useClass: TransformInterceptor,
         },
     ],
+
 })
 export class AppModule {}
