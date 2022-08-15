@@ -1,86 +1,83 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Put,
-} from '@nestjs/common';
-import { ApiBody, ApiParam } from '@nestjs/swagger';
-import { CreateUserDto, UpdateUserDto } from '@root/dto/user.dto';
-import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { JwtGuardWithApiBearerAuth } from '@root/decorators/api-bearer-with-jwt-guard.decorator';
+import { PageParams } from '@root/decorators/page-params.decorator';
+import { UserId } from '@root/decorators/user-id.decorator';
+import { AddressBookDto } from '@root/dto/address-book.dto';
+import { SearchPaginationDto } from '@root/dto/common/search-pagination.dto';
+import { CreateUserDto } from '@root/dto/create-user.dto';
+import { UpdateUserDto } from '@root/dto/update-user.dto';
+import { PhoneNumberService } from '@root/services/phone-number.service';
 import { UserService } from '@root/services/user.service';
+import { ERROR_MESSAGE } from '@root/utils/error-message';
 
+@JwtGuardWithApiBearerAuth()
+@ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+    constructor(private readonly userService: UserService, private readonly phoneNumberService: PhoneNumberService) {}
 
-  @ApiParam({ name: 'id', description: '수정할 유저의 아이디', example: 1 })
-  @ApiBody({ type: UpdateUserDto })
-  @Put(':id')
-  async updateUser(
-    @Param('id', ParseIntPipe) userIdToUpdate: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    await this.userService.update(userIdToUpdate, updateUserDto);
-    return true;
-  }
-
-  @Get()
-  async getUser() {
-    // if (true) {
-    //   throw new BadRequestException({
-    //     message: '나는 이유없이 에러를 던질거야!',
-    //   });
-    //   // return { message, statusCode: 400, timestamp: new Date(), path: '/user' };
-    // }
-
-    return await this.userService.getAll();
-  }
-
-  @ApiParam({ name: 'id', description: '조회할 유저의 아이디', example: 1 })
-  @Get(':id')
-  async getOneUser(@Param('id', ParseIntPipe) userId: number) {
-    return await this.userService.getOneUser(userId);
-  }
-
-  @ApiBody({ type: CreateUserDto })
-  @Post()
-  async saveUser(@Body() createUserDto: CreateUserDto) {
-    const createdUser = await this.userService.getOneByEmailWithDeleted(
-      createUserDto.email,
-    );
-
-    if (createdUser) {
-      throw new BadRequestException('이미 생성된 유저입니다!');
-    }
-    const phoneNumber = createUserDto.phoneNumber;
-    const savedPhoneNumber = await PhoneNumberEntity.save(phoneNumber);
-    /* 테스트에서도 작성한 의문이지만,
-      createUserDto를 재정의하는 과정에서 UserEntity 또는 CreateUserDto가 아닌
-      일반 Object 자료형으로 변환된다.
-      local 환경에서 테스트 한 결과 아직까지는 문제없이 동작하지만 추후에 어떤 문제가 발생할 지 알 수 없다.
-      이를 class-transformer의 plainToClass(CreateUserDto | UserEntity, {...})
-      와 같은 방식으로 형 변환을 해주어야 할 필요가 있는지, 그렇다면 왜 그런지에 대해 알고 싶다.
-    */
-    createUserDto = {
-      ...createUserDto,
-      phoneNumber: savedPhoneNumber,
-    };
-    return await this.userService.saveUser(createUserDto);
-  }
-
-  @Delete(':id')
-  async deleteUser(@Param('id', ParseIntPipe) userIdToDelete: number) {
-    const deletedUser = await this.userService.getOneUser(userIdToDelete);
-
-    if (!deletedUser) {
-      throw new BadRequestException('없는 유저입니다!')
+    @Get('profile')
+    @ApiOperation({ summary: '유저의 프로필 조회' })
+    async getProfile(@UserId() userId: number) {
+        return await this.userService.getProfile(userId);
     }
 
-    return await this.userService.deleteOneUser(userIdToDelete)
-  }
+    @ApiOperation({ summary: '유저와 1다리 건너 아는 다른 사용자 조회' })
+    @Get('acquaintance')
+    async getAcquaintances(@UserId() userId: number, @PageParams() searchPaginationDto: SearchPaginationDto) {
+        return await this.userService.getAcquaintances(userId, searchPaginationDto);
+    }
+
+    @ApiOperation({ summary: '[test]유저와 1다리 건너 아는 다른 사용자 조회' })
+    @Get('acquaintance-test')
+    async getAcquaintancesTest(@UserId() userId: number, @PageParams() searchPaginationDto: SearchPaginationDto) {
+        return await this.userService.getAcquaintancesForTest(userId, searchPaginationDto);
+    }
+
+    @Get('address-book')
+    @ApiOperation({ summary: '유저의 전화번호부 조회' })
+    async getAddressBook(@UserId() userId: number) {
+        return await this.userService.getAddressBook(userId);
+    }
+
+    @ApiOperation({ summary: '유저의 전화번호부 등록/갱신' })
+    @Put('address-book')
+    async updateAddressBook(@UserId() userId: number, @Body() { addressBooks }: AddressBookDto) {
+        const phoneNumbers = addressBooks.map((el) => el.phoneNumber);
+        const savedPhoneNumber = await this.phoneNumberService.saveOrIgnore(phoneNumbers);
+        await this.phoneNumberService.register(userId, savedPhoneNumber, addressBooks);
+        return true;
+    }
+
+    @ApiParam({ name: 'id', description: '조회할 유저의 아이디', example: 1 })
+    @ApiOperation({ summary: '유저의 정보 조회' })
+    @Get(':id')
+    async getOneUser(@Param('id', ParseIntPipe) userId: number) {
+        return await this.userService.getOneUser(userId);
+    }
+
+    @ApiOperation({ summary: '유저의 정보 수정' })
+    @Put()
+    async updateUser(@UserId() userIdToUpdate: number, @Body() updateUserDto: UpdateUserDto) {
+        await this.userService.update(userIdToUpdate, updateUserDto);
+        return true;
+    }
+
+    @ApiOperation({ summary: '유저 생성 / 로컬 전략 ( email, password )에 의한 회원가입' })
+    @Post()
+    async saveUser(@Body() createUserDto: CreateUserDto) {
+        const createdUser = await this.userService.getOneByEmailWithDeleted(createUserDto.email);
+        if (createdUser) {
+            throw new BadRequestException(ERROR_MESSAGE.ALREADY_CREATED_USER);
+        }
+
+        return await this.userService.saveUser(createUserDto);
+    }
+
+    @ApiOperation({ summary: '유저의 정보 삭제' })
+    @Delete()
+    async deleteUser(@UserId() userIdToDelete: number) {
+        return await this.userService.deleteOneUser(userIdToDelete);
+    }
 }
