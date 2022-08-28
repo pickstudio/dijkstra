@@ -42,4 +42,8 @@ export class PhoneNumberService {
             .orIgnore()
             .execute();
     }
+
+    async getAllByUserId(userId: number) {
+        return await this.userHasPhoneNumberRepository.findBy({ userId });
+    }
 }

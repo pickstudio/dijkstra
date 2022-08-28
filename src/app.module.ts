@@ -11,6 +11,9 @@ import { LoggingInterceptor } from '@root/interceptors/logging.interceptor';
 import { TransformInterceptor } from '@root/interceptors/transform.interceptor';
 
 import { UserModule } from '@root/modules/user.module';
+import { CustomTypeOrmModule } from './settings/typeorm/custom-typeorm.module';
+import { UserRepository } from './entities/repositories/user.repository';
+import { PhoneNumberModule } from './modules/phone-number.module';
 
 @Module({
     imports: [
@@ -31,12 +34,14 @@ import { UserModule } from '@root/modules/user.module';
                     database: configService.get('DB_DATABASE'),
                     entities: [path.join(__dirname, './entities/*.entity{.ts,.js}')],
                     synchronize: true,
-                    logging: true,
+                    logging: false,
                     ...{ socketPath: configService.get('NODE_ENV') === 'local' && '/tmp/mysql.sock' },
                 };
             },
         }),
+        CustomTypeOrmModule.forCustomRepository([UserRepository]),
         UserModule,
+        PhoneNumberModule,
         AuthModule,
     ],
     controllers: [AppController],
@@ -55,6 +60,5 @@ import { UserModule } from '@root/modules/user.module';
             useClass: TransformInterceptor,
         },
     ],
-
 })
 export class AppModule {}

@@ -37,7 +37,7 @@ export class UserEntity extends TimeColumns {
 
     @ApiProperty({ description: '비밀번호', example: 'password123!@#' })
     @IsNotEmptyString(0, 30)
-    @Column({ length: 1000, select: false })
+    @Column({ length: 1000, select: false, nullable: true })
     password: string;
 
     @ApiProperty({ description: '이름', example: 'kakasoo' })
@@ -86,5 +86,5 @@ export class UserEntity extends TimeColumns {
     addressBook: PhoneNumberEntity[];
 
     @OneToMany(() => UserHasPhoneNumberEntity, (bridge) => bridge.user)
-    bridge: UserHasPhoneNumberEntity[];
+    bridges: UserHasPhoneNumberEntity[];
 }

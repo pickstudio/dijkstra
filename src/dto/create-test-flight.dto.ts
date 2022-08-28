@@ -21,6 +21,10 @@ export class CreateTestFlightDto {
     @ApiProperty({ description: '사용자의 이름, 전화번호부의 소유자', example: 'kakasoo' })
     nickName: string;
 
+    @ApiProperty({ description: '본인의 전화번호', example: '010-8525-7658' })
+    @IsNotEmptyString(0, 100)
+    phoneNumber?: string;
+
     @ApiProperty({ description: '사용자의 전화번호부', type: [CreateTestFlightAddressDto] })
     @IsArray()
     @Type(() => CreateTestFlightAddressDto)

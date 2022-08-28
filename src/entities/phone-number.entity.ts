@@ -24,6 +24,6 @@ export class PhoneNumberEntity extends TimeColumns {
     @ManyToMany(() => UserEntity, (user) => user.addressBook)
     acquaintances: UserEntity[];
 
-    @OneToMany(() => PhoneNumberEntity, (bridge) => bridge.phoneNumber)
-    bridge: PhoneNumberEntity[];
+    @OneToMany(() => PhoneNumberEntity, (bridges) => bridges.phoneNumber)
+    bridges: PhoneNumberEntity[];
 }

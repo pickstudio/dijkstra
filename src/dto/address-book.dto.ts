@@ -3,6 +3,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class OneAddressDto {
+    constructor({ name, phoneNumber }: { name: string; phoneNumber: string }) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+    }
+
     @ApiProperty({ description: '전화번호 이름', example: 'kakasoo' })
     @IsString()
     name: string;

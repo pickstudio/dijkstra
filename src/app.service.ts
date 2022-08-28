@@ -1,8 +1,36 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateTestFlightDto } from './dto/create-test-flight.dto';
+import { UserRepository } from '@root/entities/repositories/user.repository';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
-  }
+    constructor(@InjectRepository(UserRepository) private readonly userRepository: UserRepository) {}
+    async saveUserAndPhoneNumbers({ nickName, phoneNumber }: CreateTestFlightDto) {
+        let savedUser = await this.userRepository.findOne({
+            where: {
+                email: nickName,
+                password: nickName,
+                name: nickName,
+            },
+        });
+
+        if (!savedUser) {
+            savedUser = await this.userRepository.save({
+                email: nickName,
+                password: nickName,
+                name: nickName,
+                birth: new Date(),
+                phoneNumber: {
+                    phoneNumber: phoneNumber ? phoneNumber : 'UNKNOWN',
+                },
+            });
+        }
+
+        return savedUser;
+    }
+
+    getHello(): string {
+        return 'Hello World!';
+    }
 }
