@@ -33,7 +33,7 @@ import { PhoneNumberModule } from './modules/phone-number.module';
                     password: configService.get('DB_PASSWORD'),
                     database: configService.get('DB_DATABASE'),
                     entities: [path.join(__dirname, './entities/*.entity{.ts,.js}')],
-                    synchronize: true,
+                    synchronize: configService.get('NODE_ENV') === 'local' ? true : false,
                     logging: false,
                     ...{ socketPath: configService.get('NODE_ENV') === 'local' && '/tmp/mysql.sock' },
                 };

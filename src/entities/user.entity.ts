@@ -79,7 +79,7 @@ export class UserEntity extends TimeColumns {
 
     @ManyToMany(() => PhoneNumberEntity, (phoneNumber) => phoneNumber.acquaintances)
     @JoinTable({
-        name: 'user_has_phone_numbers',
+        name: 'user_has_phone_number_entity',
         joinColumn: { name: 'userId', referencedColumnName: 'id' },
         inverseJoinColumn: { name: 'phoneNumberId', referencedColumnName: 'id' },
     })
