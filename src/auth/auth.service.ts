@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '@root/entities/user.entity';
 import { UserService } from '@root/services/user.service';
+import { ERROR_MESSAGE } from '@root/utils/error-message';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -17,7 +18,7 @@ export class AuthService {
                 return rest;
             }
         }
-        throw new UnauthorizedException('인증 오류!');
+        throw new UnauthorizedException(ERROR_MESSAGE.FAIL_AUTH);
     }
 
     login(user: UserEntity) {

@@ -5,6 +5,7 @@ import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { In } from 'typeorm';
 import { UserHasPhoneNumberRepository } from '@root/entities/repositories/address-book.repository';
 import { OneAddressDto } from '@root/dto/address-book.dto';
+import { UserEntity } from '@root/entities/user.entity';
 
 @Injectable()
 export class PhoneNumberService {
@@ -35,12 +36,10 @@ export class PhoneNumberService {
             return this.userHasPhoneNumberRepository.create({ phoneNumberId: phoneNumber.id, userId, phoneNickname });
         });
 
-        await this.userHasPhoneNumberRepository
-            .createQueryBuilder('bridge')
-            .insert()
-            .values(bridges)
-            .orIgnore()
-            .execute();
+        // await this.userHasPhoneNumberRepository.upsert(bridges, ['userId', 'phoneNumberId']);
+        const response = await this.userHasPhoneNumberRepository.save(bridges);
+        console.log(response, 'response를 저장합니다.');
+        return response;
     }
 
     async getAllByUserId(userId: number) {

@@ -9,6 +9,8 @@ import * as bcrypt from 'bcrypt';
 import { LoginInfo } from '../auth/auth.input';
 import { AuthModule } from '../auth/auth.module';
 import { AuthService } from '../auth/auth.service';
+import { UserEntity } from '@root/entities/user.entity';
+import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 
 describe('AuthService', () => {
     let service: AuthService;
@@ -67,23 +69,39 @@ describe('AuthService', () => {
     });
 
     describe('1. Local 로그인.', () => {
-        let loginInfo: LoginInfo;
-        beforeEach(() => {
-            loginInfo = plainToClass(LoginInfo, {
-                email: 'test3@test.com',
-                password: 'password123!@#',
+        let user: UserEntity;
+        beforeAll(async () => {
+            const hashedPassword = await bcrypt.hash('password', 8);
+            user = await UserEntity.save({
+                name: 'test5-name',
+                email: 'test5-email',
+                birth: new Date(),
+                password: hashedPassword,
+                phoneNumber: {
+                    phoneNumber: '01085257658',
+                },
             });
         });
 
+        afterAll(async () => {
+            try {
+                await UserEntity.delete({ id: user.id });
+                await PhoneNumberEntity.delete({ id: user.phoneNumber.id });
+            } catch (err) {
+                console.log(err.message);
+            }
+        });
+
         it('1.1. 이메일과 패스워드를 정확히 입력하면 validateUser 함수가 유저 객체를 반환한다.', async () => {
-            const state = await service.validateUser(loginInfo.email, loginInfo.password);
+            const state = await service.validateUser(user.email, 'password');
+
             expect(state).toBeDefined();
         });
 
         it('1.2. 이메일과 패스워드가 정확하지 않다면 오류를 반환한다.', async () => {
             let state;
             try {
-                state = await service.validateUser(loginInfo.email, 'asdf');
+                state = await service.validateUser(user.email, 'wrongPassword');
                 expect(state).toBeDefined();
             } catch {
                 expect(state).toBeUndefined();
@@ -91,15 +109,10 @@ describe('AuthService', () => {
         });
 
         it('1.3. 로그인에 성공하면 토큰을 발행한다.', async () => {
-            const userEntity = await service.validateUser(loginInfo.email, loginInfo.password);
-            const token = await service.login(userEntity);
-            const dummyToken = jwtService.sign({
-                username: userEntity.name,
-                sub: userEntity.id,
-            });
+            const userEntity = await service.validateUser(user.email, 'password');
+            const token = service.login(userEntity);
+
             expect(token).toBeDefined();
-            expect(token.access_token).toBeDefined();
-            expect(token.access_token).toEqual(dummyToken);
         });
     });
 });

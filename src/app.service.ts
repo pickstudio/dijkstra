@@ -13,7 +13,12 @@ export class AppService {
                 password: nickName,
                 name: nickName,
             },
+            relations: {
+                bridges: true,
+            },
         });
+
+        console.log(!!savedUser);
 
         if (!savedUser) {
             savedUser = await this.userRepository.save({
