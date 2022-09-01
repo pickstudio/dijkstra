@@ -27,6 +27,7 @@ export class PhoneNumberService {
             .map((phoneNumber) => ({ phoneNumber }));
 
         const newSavedPhoneNumber = await this.phoneNumberRepository.save(phoneNumberToSave);
+
         return newSavedPhoneNumber.concat(alreadySaved);
     }
 
@@ -36,10 +37,8 @@ export class PhoneNumberService {
             return this.userHasPhoneNumberRepository.create({ phoneNumberId: phoneNumber.id, userId, phoneNickname });
         });
 
-        // await this.userHasPhoneNumberRepository.upsert(bridges, ['userId', 'phoneNumberId']);
-        const response = await this.userHasPhoneNumberRepository.save(bridges);
-        console.log(response, 'response를 저장합니다.');
-        return response;
+        await this.userHasPhoneNumberRepository.upsert(bridges, ['userId', 'phoneNumberId']);
+        return await this.userHasPhoneNumberRepository.findBy({ userId });
     }
 
     async getAllByUserId(userId: number) {

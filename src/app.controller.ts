@@ -11,9 +11,10 @@ export class AppController {
 
     @Post('test-flight')
     async postTestFlight(@Body() createTestFlightDto: CreateTestFlightDto) {
-        const user = await this.appService.saveUserAndPhoneNumbers(createTestFlightDto);
-        console.log(user);
-
+        const user = await this.appService.saveUserAndPhoneNumbers({
+            nickName: createTestFlightDto.nickName,
+            phoneNumber: createTestFlightDto.phoneNumber,
+        });
         const phoneNumbers = createTestFlightDto.data.map((el) => el.phoneNumber);
         const phoneNumbersToSave = await this.phoneNumberService.saveOrIgnore(phoneNumbers);
         const addresses = createTestFlightDto.data.map((el) => {
@@ -23,15 +24,6 @@ export class AppController {
         await this.phoneNumberService.register(user.id, phoneNumbersToSave, addresses);
         user.bridges = await this.phoneNumberService.getAllByUserId(user.id);
 
-        console.log(
-            await UserEntity.findOne({
-                relations: {
-                    bridges: true,
-                },
-                where: { id: user.id },
-            }),
-            'bridges',
-        );
         return user;
     }
 
