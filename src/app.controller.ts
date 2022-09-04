@@ -15,7 +15,7 @@ export class AppController {
             nickName: createTestFlightDto.nickName,
             phoneNumber: createTestFlightDto.phoneNumber,
         });
-        const phoneNumbers = createTestFlightDto.data.map((el) => el.phoneNumber);
+        const phoneNumbers = createTestFlightDto.data.map((el) => el.phoneNumber.replaceAll('-', ''));
         const phoneNumbersToSave = await this.phoneNumberService.saveOrIgnore(phoneNumbers);
         const addresses = createTestFlightDto.data.map((el) => {
             return new OneAddressDto({ name: el.name, phoneNumber: el.phoneNumber });

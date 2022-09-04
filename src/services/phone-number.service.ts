@@ -42,6 +42,9 @@ export class PhoneNumberService {
     }
 
     async getAllByUserId(userId: number) {
-        return await this.userHasPhoneNumberRepository.findBy({ userId });
+        return await this.userHasPhoneNumberRepository.find({
+            relations: { phoneNumber: true },
+            where: { userId },
+        });
     }
 }
