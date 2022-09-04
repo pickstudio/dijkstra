@@ -1,4 +1,4 @@
-import { IsArray } from '@nestjs/class-validator';
+import { IsArray, IsPhoneNumber, ValidateNested } from '@nestjs/class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmptyString } from '@root/decorators/is-not-empty-string.decorator';
 import { Type } from 'class-transformer';
@@ -12,8 +12,9 @@ export class CreateTestFlightAddressDto {
     @IsNotEmptyString(0, 100)
     type: string;
 
-    @ApiProperty({ description: '사용자가 저장한 다른 사람의 번호', example: '010-8525-7658' })
+    @ApiProperty({ description: '사용자가 저장한 다른 사람의 번호', example: '01085257658' })
     @IsNotEmptyString(0, 100)
+    @IsPhoneNumber('KR')
     phoneNumber: string;
 }
 
@@ -21,12 +22,14 @@ export class CreateTestFlightDto {
     @ApiProperty({ description: '사용자의 이름, 전화번호부의 소유자', example: 'kakasoo' })
     nickName: string;
 
-    @ApiProperty({ description: '본인의 전화번호', example: '010-8525-7658' })
+    @ApiProperty({ description: '본인의 전화번호', example: '01085257658' })
     @IsNotEmptyString(0, 100)
+    @IsPhoneNumber('KR')
     phoneNumber?: string;
 
     @ApiProperty({ description: '사용자의 전화번호부', type: [CreateTestFlightAddressDto] })
     @IsArray()
     @Type(() => CreateTestFlightAddressDto)
+    @ValidateNested({ each: true })
     data: CreateTestFlightAddressDto[];
 }
