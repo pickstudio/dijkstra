@@ -16,12 +16,10 @@ export class DataService {
                 email: true,
                 bridges: {
                     phoneNickname: true,
-                    phoneNumber: {
-                        phoneNumber: true,
-                    },
+                    phoneNumberId: true,
                 },
             },
-            relations: ['bridges', 'bridges.phoneNumber'],
+            relations: ['bridges'],
         });
     }
 }
