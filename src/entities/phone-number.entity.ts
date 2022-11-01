@@ -1,14 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmptyString } from '@root/decorators/is-not-empty-string.decorator';
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, ManyToMany, OneToMany } from 'typeorm';
-import { TimeColumns } from './common/time-columns';
+import { Entity, Column, OneToOne, ManyToMany, OneToMany } from 'typeorm';
+import { CommonColumns } from './common/common.columns';
 import { UserEntity } from './user.entity';
 
 @Entity()
-export class PhoneNumberEntity extends TimeColumns {
-    @PrimaryGeneratedColumn()
-    id: number;
-
+export class PhoneNumberEntity extends CommonColumns {
     @ApiProperty({ description: '8자부터 16자까지의 전화번호로, Length는 임의의 값으로 정의', example: '01012345678' })
     @IsNotEmptyString(8, 16)
     @Column({ length: 16 })

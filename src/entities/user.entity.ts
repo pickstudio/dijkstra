@@ -1,28 +1,16 @@
-import { IsDate, IsEmail, IsInt, IsNumber, IsOptional, IsString } from '@nestjs/class-validator';
+import { IsDate, IsEmail, IsInt, IsOptional } from '@nestjs/class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsGender } from '@root/decorators/gender.decorator';
 import { IsNotEmptyString } from '@root/decorators/is-not-empty-string.decorator';
 import { IsProvider } from '@root/decorators/oauth-provider.decorator';
 import { Type } from 'class-transformer';
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    OneToOne,
-    JoinColumn,
-    ManyToMany,
-    JoinTable,
-    OneToMany,
-} from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { UserHasPhoneNumberEntity } from './user-has-phone-number.entity';
-import { TimeColumns } from './common/time-columns';
 import { PhoneNumberEntity } from './phone-number.entity';
+import { CommonColumns } from './common/common.columns';
 
 @Entity()
-export class UserEntity extends TimeColumns {
-    @PrimaryGeneratedColumn()
-    id: number;
-
+export class UserEntity extends CommonColumns {
     @ApiProperty({ description: '자기 자신의 전화번호에 대한 FK' })
     @IsInt()
     @Type(() => Number) // NOTE : class-transformer
