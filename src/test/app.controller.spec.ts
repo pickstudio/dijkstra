@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AppController } from '@root/app.controller';
 import { AppModule } from '@root/app.module';
 import { AppService } from '@root/app.service';
-import { UserHasPhoneNumberEntity } from '@root/entities/address-book.entity';
+import { UserHasPhoneNumberEntity } from '@root/entities/user-has-phone-number.entity';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserEntity } from '@root/entities/user.entity';
 import { PhoneNumberService } from '@root/services/phone-number.service';

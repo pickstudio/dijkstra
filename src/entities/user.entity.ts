@@ -14,7 +14,7 @@ import {
     JoinTable,
     OneToMany,
 } from 'typeorm';
-import { UserHasPhoneNumberEntity } from './address-book.entity';
+import { UserHasPhoneNumberEntity } from './user-has-phone-number.entity';
 import { TimeColumns } from './common/time-columns';
 import { PhoneNumberEntity } from './phone-number.entity';
 
