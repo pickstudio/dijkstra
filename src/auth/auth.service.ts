@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadGatewayException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '@root/entities/user.entity';
 import { UserService } from '@root/services/user.service';
@@ -11,14 +11,17 @@ export class AuthService {
 
     async validateUser(email: string, password: string): Promise<any> {
         const user = await this.userService.getOneUserByEmailForAuth(email);
-        if (user) {
-            const isRightPassword = await bcrypt.compare(password, user.password);
-            if (isRightPassword) {
-                const { password, ...rest } = user;
-                return rest;
-            }
+        if (!user) {
+            throw new BadGatewayException(ERROR_MESSAGE.FAIL_AUTH);
         }
-        throw new UnauthorizedException(ERROR_MESSAGE.FAIL_AUTH);
+
+        const isRightPassword = await bcrypt.compare(password, user.password);
+        if (!isRightPassword) {
+            throw new BadGatewayException(ERROR_MESSAGE.FAIL_AUTH);
+        }
+
+        delete user.password;
+        return user;
     }
 
     login(user: UserEntity) {
