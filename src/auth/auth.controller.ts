@@ -1,9 +1,9 @@
-import { Controller, Post, UseGuards, Request, Get, Req, HttpStatus } from '@nestjs/common';
+import { Controller, Post, UseGuards, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { User } from '@root/decorators/user-id.decorator';
 import { UserEntity } from '@root/entities/user.entity';
-import { LoginInfo } from './auth.input';
+import { LoginDto } from './login.dto';
 import { AuthService } from './auth.service';
 import { KakaoAuthGuard } from './guards/kakao-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -13,22 +13,23 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 export class AuthController {
     constructor(private readonly authService: AuthService, private readonly configService: ConfigService) {}
 
-    @ApiBody({ description: '로그인', type: LoginInfo })
+    @ApiBody({ description: '로그인', type: LoginDto })
     @UseGuards(LocalAuthGuard)
-    @Post('login')
+    @Post('local/login')
     login(@User() user: UserEntity) {
         return this.authService.login(user);
     }
 
     @UseGuards(KakaoAuthGuard)
-    @Get('kakao')
-    async kakaoLogin(@Request() req) {
-        return HttpStatus.OK;
+    @Get('kakao/callback')
+    async kakoLoginCallback(@User() user: UserEntity) {
+        console.log('here2');
+        return this.authService.kakaoLogin(user);
     }
 
     @UseGuards(KakaoAuthGuard)
-    @Get('kakao/callback')
-    async kakoLoginCallback(@User() user: UserEntity) {
-        return this.authService.kakaoLogin(user);
+    @Get('kakao/login')
+    async kakaoLogin(): Promise<void> {
+        console.log('here');
     }
 }

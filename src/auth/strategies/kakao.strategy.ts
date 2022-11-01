@@ -6,7 +6,7 @@ import { AuthService } from '../auth.service';
 
 @Injectable()
 export class KakaoStrategy extends PassportStrategy(Strategy) {
-    constructor(private readonly configService: ConfigService, private readonly authService: AuthService) {
+    constructor(protected readonly configService: ConfigService, private readonly authService: AuthService) {
         super({
             clientID: configService.get('KAKAO_ID'),
             callbackURL: configService.get('KAKAO_CALLBACK_URL'),
@@ -14,6 +14,7 @@ export class KakaoStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(accessToken: string, refreshToken: string, profile: Profile, done) {
+        console.log('here');
         const profileJson = profile._json;
         const kakao_account = profileJson.kakao_account;
 

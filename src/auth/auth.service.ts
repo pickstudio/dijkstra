@@ -28,7 +28,7 @@ export class AuthService {
         return accessToken;
     }
 
-    kakaoLogin(user) {
+    kakaoLogin(user: UserEntity) {
         return user;
     }
 }
