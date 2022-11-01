@@ -13,16 +13,16 @@ export class KakaoStrategy extends PassportStrategy(Strategy) {
         });
     }
 
-    async validate(accessToken: string, refreshToken: string, profile: Profile, done) {
-        console.log('here');
-        const profileJson = profile._json;
+    async validate(accessToken: string, refreshToken: string, profile: Profile, done: (err, payload) => {}) {
+        const profileJson: { id: number; kakao_account: KakaoAccount } = profile._json;
         const kakao_account = profileJson.kakao_account;
 
         const payload = {
-            name: kakao_account.profile.nickname,
+            provider: profile.provider,
+            nickname: kakao_account.profile.nickname,
             oAuthId: profileJson.id,
-            email: kakao_account.has_email && !kakao_account.email_needs_agreement ? kakao_account.email : null,
-            gender: kakao_account.has_gender && !kakao_account.gender_needs_agreement ? kakao_account.gender : null,
+
+            // NOTE : gender, age_range, birthday, profile_image property 수집 가능
         };
 
         done(null, payload);

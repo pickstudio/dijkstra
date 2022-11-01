@@ -22,14 +22,9 @@ export class AuthController {
 
     @UseGuards(KakaoAuthGuard)
     @Get('kakao/callback')
-    async kakoLoginCallback(@User() user: UserEntity) {
-        console.log('here2');
-        return this.authService.kakaoLogin(user);
-    }
+    async kakoLoginCallback(@User() user: { name: string; oAuthId: number; email: string; gender: string }) {}
 
     @UseGuards(KakaoAuthGuard)
     @Get('kakao/login')
-    async kakaoLogin(): Promise<void> {
-        console.log('here');
-    }
+    async kakaoLogin(): Promise<void> {}
 }
