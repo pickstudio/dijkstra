@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post, UseGuards, Get, Body } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { User } from '@root/decorators/user-id.decorator';
@@ -7,6 +7,8 @@ import { LoginDto } from './login.dto';
 import { AuthService } from './auth.service';
 import { KakaoAuthGuard } from './guards/kakao-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { CreateOAuthUserDto } from '@root/types';
+import { LoginOAuthUserDto } from '@root/dto/login-user.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -22,12 +24,16 @@ export class AuthController {
 
     @UseGuards(KakaoAuthGuard)
     @Get('kakao/callback')
-    async kakoLoginCallback(@User() user: { name: string; oAuthId: number; email: string; gender: string }) {}
+    async kakoLoginCallback(@User() user: CreateOAuthUserDto) {
+        await this.authService.kakaoSignUp(user);
+    }
 
     @UseGuards(KakaoAuthGuard)
     @Get('kakao/sign-up')
     async kakaoSignUp(): Promise<void> {}
 
-    @Get('kakao/login-in')
-    async kakaoLogin(): Promise<void> {}
+    @Get('kakao/login')
+    async kakaoLogin(@Body() { oAuthId }: LoginOAuthUserDto, pushToken?: string) {
+        await this.authService.kakaoLogin(oAuthId, pushToken);
+    }
 }

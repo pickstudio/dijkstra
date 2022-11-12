@@ -11,7 +11,9 @@ import * as bcrypt from 'bcrypt';
 import * as path from 'path';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 
-describe.skip('AuthController', () => {
+import { faker } from '@faker-js/faker';
+
+describe('AuthController', () => {
     let controller: AuthController;
     let service: AuthService;
     let jwtService: JwtService;
@@ -110,7 +112,25 @@ describe.skip('AuthController', () => {
     });
 
     describe('2. POST kakao/sign-up : 카카오를 이용한 회원가입', () => {
-        it('가입한 적 없는 유저일 경우, 유저를 생성한다.', async () => {});
+        const kakaoUser = {
+            name: faker.name.firstName(),
+            oAuthId: faker.random.numeric(10),
+            email: faker.internet.email(),
+            gender: 'Male',
+        };
+
+        it('가입한 적 없는 유저일 경우, 유저를 생성한다.', async () => {
+            try {
+                console.log(kakaoUser);
+
+                expect(kakaoUser).toBeDefined();
+            } catch (err) {
+                expect(err).toBeUndefined();
+            } finally {
+            }
+        });
+
+        it('이미 가입한 유저일 경우에는 에러를 반환한다.', async () => {});
     });
 
     describe('2. GET auth/kakao/login : kakao를 이용한 로그인', () => {

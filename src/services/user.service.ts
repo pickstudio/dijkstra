@@ -6,6 +6,7 @@ import { UpdateUserDto } from '@root/dto/update-user.dto';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserHasPhoneNumberRepository } from '@root/entities/repositories/address-book.repository';
 import { UserRepository } from '@root/entities/repositories/user.repository';
+import { Providers } from '@root/types';
 import { ERROR_MESSAGE } from '@root/utils/error-message';
 import { getSkipAndTake } from '@root/utils/functions/get-skip-and-take.function';
 import * as bcrypt from 'bcrypt';
@@ -19,7 +20,26 @@ export class UserService {
         private readonly addressBookRepository: UserHasPhoneNumberRepository,
     ) {}
 
-    async findOneByOauthId(provider: string, oAuthId: string) {
+    async createUserByOAuth(provider: string, nickName: string, oAuthId: string, email?: string, gender?: any) {
+        let savedUser = await this.userRepository.findOne({
+            where: {
+                oAuthId,
+            },
+        });
+
+        if (!savedUser) {
+            savedUser = await this.userRepository.save({
+                email,
+                name: nickName,
+                provider,
+                gender,
+            });
+        }
+
+        return savedUser;
+    }
+
+    async findOneByOauthId(provider: Providers, oAuthId: string) {
         const user = await this.userRepository.findOne({
             where: {
                 provider,

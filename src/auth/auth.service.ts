@@ -2,6 +2,7 @@ import { BadGatewayException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from '@root/entities/user.entity';
 import { UserService } from '@root/services/user.service';
+import { CreateOAuthUserDto } from '@root/types';
 import { ERROR_MESSAGE } from '@root/utils/error-message';
 import * as bcrypt from 'bcrypt';
 
@@ -31,7 +32,16 @@ export class AuthService {
         return accessToken;
     }
 
-    async kakaoLogin(oauthId: string) {
-        // await this.userService.
+    async kakaoSignUp({ provider, nickname, oAuthId, email, gender }: CreateOAuthUserDto) {
+        const user = await this.userService.createUserByOAuth(provider, nickname, oAuthId, email, gender);
+        return user;
+    }
+
+    async kakaoLogin(oauthId: string, pushToken: string) {
+        const user = await this.userService.findOneByOauthId('kakao', oauthId);
+
+        // NOTE : need to validate push token.
+
+        return user;
     }
 }
