@@ -31,7 +31,7 @@ export class AuthService {
         return accessToken;
     }
 
-    kakaoLogin(user: UserEntity) {
-        return user;
+    async kakaoLogin(oauthId: string) {
+        // await this.userService.
     }
 }

@@ -108,4 +108,13 @@ describe.skip('AuthController', () => {
             expect(decoded.userId).toBeDefined();
         });
     });
+
+    describe('2. POST kakao/sign-up : 카카오를 이용한 회원가입', () => {
+        it('가입한 적 없는 유저일 경우, 유저를 생성한다.', async () => {});
+    });
+
+    describe('2. GET auth/kakao/login : kakao를 이용한 로그인', () => {
+        it('가입한 적 있는 유저의 로그인 시, provider와 pushToken으로 유저를 찾아 반환한다.', async () => {});
+        it('로그인 시 받은, 유저의 pushToken을 기록한다.', async () => {});
+    });
 });

@@ -19,6 +19,17 @@ export class UserService {
         private readonly addressBookRepository: UserHasPhoneNumberRepository,
     ) {}
 
+    async findOneByOauthId(provider: string, oAuthId: string) {
+        const user = await this.userRepository.findOne({
+            where: {
+                provider,
+                oAuthId,
+            },
+        });
+
+        return user;
+    }
+
     async getOneByEmailWithDeleted(email: string) {
         const user = await this.userRepository.findOne({
             where: { email },

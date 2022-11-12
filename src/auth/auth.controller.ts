@@ -25,6 +25,9 @@ export class AuthController {
     async kakoLoginCallback(@User() user: { name: string; oAuthId: number; email: string; gender: string }) {}
 
     @UseGuards(KakaoAuthGuard)
-    @Get('kakao/login')
+    @Get('kakao/sign-up')
+    async kakaoSignUp(): Promise<void> {}
+
+    @Get('kakao/login-in')
     async kakaoLogin(): Promise<void> {}
 }
