@@ -208,13 +208,6 @@ describe('AppController', () => {
                 where: { id: user.id },
             });
 
-            console.log(createdUser);
-
-            console.log('phoneNumbers.');
-            createdUser.bridges.forEach((el) => {
-                console.log(el.phoneNumber);
-            });
-
             expect(user).toBeDefined();
             expect(user.bridges.length).toBe(2);
         });
