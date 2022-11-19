@@ -8,12 +8,15 @@ import { Entity, Column, OneToOne, JoinColumn, ManyToMany, JoinTable, OneToMany 
 import { UserHasPhoneNumberEntity } from './user-has-phone-number.entity';
 import { PhoneNumberEntity } from './phone-number.entity';
 import { CommonColumns } from './common/common.columns';
+import { IsOptionalBoolean } from '@root/decorators/is-optional-boolean.decorator';
+import { IsNotEmptyNumber } from '@root/decorators/is-not-empty-number.decorator';
+import { ProfileImageEntity } from './profile-image.entity';
+import { PushTokenEntity } from './push-token.entity';
 
 @Entity()
 export class UserEntity extends CommonColumns {
     @ApiProperty({ description: '자기 자신의 전화번호에 대한 FK' })
-    @IsInt()
-    @Type(() => Number) // NOTE : class-transformer
+    @IsNotEmptyNumber()
     @Column()
     phoneNumberId: number;
 
@@ -32,6 +35,16 @@ export class UserEntity extends CommonColumns {
     @IsNotEmptyString(1, 30)
     @Column({ length: 30, nullable: false })
     name: string;
+
+    @ApiProperty({ description: '닉네임', example: 'kakasoo' })
+    @IsNotEmptyString(1, 30)
+    @Column({ length: 30, nullable: true })
+    nickname: string;
+
+    @ApiProperty({ description: '자기소개', example: '만나서 반가워요.' })
+    @IsNotEmptyString(1, 300)
+    @Column({ length: 300, nullable: true })
+    introduce: string;
 
     @ApiProperty({ description: '생일', example: new Date() })
     @IsDate()
@@ -55,6 +68,11 @@ export class UserEntity extends CommonColumns {
     @Column({ length: 100, nullable: true })
     oAuthId: string;
 
+    @ApiProperty({ description: '주선자인지 아닌지 여부를 의미' })
+    @IsOptionalBoolean()
+    @Column({ default: false, nullable: false })
+    isGoBetween: boolean;
+
     /**
      * NOTE : bellow are relations.
      */
@@ -75,4 +93,10 @@ export class UserEntity extends CommonColumns {
 
     @OneToMany(() => UserHasPhoneNumberEntity, (bridge) => bridge.user)
     bridges: UserHasPhoneNumberEntity[];
+
+    @OneToMany(() => ProfileImageEntity, (image) => image.user)
+    profileImages: ProfileImageEntity[];
+
+    @OneToMany(() => PushTokenEntity, (token) => token.user)
+    pushTokens: PushTokenEntity[];
 }
