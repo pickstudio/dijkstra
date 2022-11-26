@@ -4,7 +4,14 @@ import { UserEntity } from '@root/entities/user.entity';
 import { Type } from 'class-transformer';
 import { CreatePhoneNumberDto } from './create-phone-number.dto';
 
-export class CreateUserDto extends PickType(UserEntity, ['email', 'name', 'birth', 'password', 'gender'] as const) {
+export class CreateUserDto extends PickType(UserEntity, [
+    'email',
+    'name',
+    'nickname',
+    'birth',
+    'password',
+    'gender',
+] as const) {
     @ApiProperty({ type: CreatePhoneNumberDto })
     @Type(() => CreatePhoneNumberDto)
     @ValidateNested()

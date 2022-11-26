@@ -50,6 +50,15 @@ export class UserService {
         return user;
     }
 
+    async getOneByNicknameWIthDeleted(nickname: string) {
+        const user = await this.userRepository.findOne({
+            where: { nickname },
+            withDeleted: true,
+        });
+
+        return user;
+    }
+
     async getOneByEmailWithDeleted(email: string) {
         const user = await this.userRepository.findOne({
             where: { email },

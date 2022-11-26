@@ -15,6 +15,7 @@ import { CustomTypeOrmModule } from './settings/typeorm/custom-typeorm.module';
 import { UserRepository } from './entities/repositories/user.repository';
 import { PhoneNumberModule } from './modules/phone-number.module';
 import { DataModule } from './data-export/data-export.module';
+import { IdentifyVerificationModule } from './modules/identify-verification.module';
 
 @Module({
     imports: [
@@ -41,6 +42,7 @@ import { DataModule } from './data-export/data-export.module';
             },
         }),
         CustomTypeOrmModule.forCustomRepository([UserRepository]),
+        IdentifyVerificationModule,
         UserModule,
         PhoneNumberModule,
         AuthModule,

@@ -12,6 +12,7 @@ import { IsOptionalBoolean } from '@root/decorators/is-optional-boolean.decorato
 import { IsNotEmptyNumber } from '@root/decorators/is-not-empty-number.decorator';
 import { ProfileImageEntity } from './profile-image.entity';
 import { PushTokenEntity } from './push-token.entity';
+import { IdentifyVerificationEntity } from './identity-verification.entity';
 
 @Entity()
 export class UserEntity extends CommonColumns {
@@ -73,6 +74,9 @@ export class UserEntity extends CommonColumns {
     @Column({ default: false, nullable: false })
     isGoBetween: boolean;
 
+    @Column('timestamp', { nullable: true })
+    agreementToToS: Date;
+
     /**
      * NOTE : bellow are relations.
      */
@@ -99,4 +103,7 @@ export class UserEntity extends CommonColumns {
 
     @OneToMany(() => PushTokenEntity, (token) => token.user)
     pushTokens: PushTokenEntity[];
+
+    @OneToMany(() => IdentifyVerificationEntity, (identifyVerification) => identifyVerification.user)
+    identifyVerifications: IdentifyVerificationEntity[];
 }
