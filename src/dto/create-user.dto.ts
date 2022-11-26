@@ -8,9 +8,13 @@ export class CreateUserDto extends PickType(UserEntity, [
     'email',
     'name',
     'nickname',
+    'height',
+    'weight',
     'birth',
     'password',
     'gender',
+    'education',
+    'educationDetail',
 ] as const) {
     @ApiProperty({ type: CreatePhoneNumberDto })
     @Type(() => CreatePhoneNumberDto)

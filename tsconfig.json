@@ -11,6 +11,7 @@
         "outDir": "./dist",
         "baseUrl": "./",
         "rootDir": "./src",
+        "noEmit": true,
         "incremental": true,
         "skipLibCheck": true,
         "strictNullChecks": false,

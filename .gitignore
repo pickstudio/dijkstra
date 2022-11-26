@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+
+
+
 # Logs
 logs
 *.log
@@ -40,4 +43,11 @@ lerna-debug.log*
 .env.dev
 .env.prod
 
+# build setting
+tsconfig.build.tsbuildinfo
+
+
+
 .envrc
+
+node_modules

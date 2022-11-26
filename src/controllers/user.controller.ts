@@ -10,6 +10,7 @@ import { UpdateUserDto } from '@root/dto/update-user.dto';
 import { PhoneNumberService } from '@root/services/phone-number.service';
 import { UserService } from '@root/services/user.service';
 import { ERROR_MESSAGE } from '@root/utils/error-message';
+import { getDifferYear, getToday } from '@root/utils/functions/date.function';
 
 @JwtGuardWithApiBearerAuth()
 @ApiTags('User')
@@ -65,6 +66,12 @@ export class UserController {
             this.userService.getOneByNicknameWIthDeleted(createUserDto.nickname),
             this.userService.getOneByEmailWithDeleted(createUserDto.email),
         ]);
+
+        const adult = 19;
+        const differYear = getDifferYear(createUserDto.birth, getToday());
+        if (differYear < adult) {
+            throw new BadRequestException(ERROR_MESSAGE.IS_NOT_ADULT);
+        }
 
         if (isCreatedNickname) {
             throw new BadRequestException(ERROR_MESSAGE.ALREADY_CREATED_USER_NICKNAME);

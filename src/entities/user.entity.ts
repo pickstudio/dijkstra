@@ -1,6 +1,6 @@
-import { IsDate, IsEmail, IsInt, IsOptional } from '@nestjs/class-validator';
+import { IsDate, IsEmail, IsInt, IsNotEmpty, IsOptional } from '@nestjs/class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsGender } from '@root/decorators/gender.decorator';
+import { IsGender } from '@root/decorators/is-gender.decorator';
 import { IsNotEmptyString } from '@root/decorators/is-not-empty-string.decorator';
 import { IsProvider } from '@root/decorators/oauth-provider.decorator';
 import { Type } from 'class-transformer';
@@ -13,6 +13,7 @@ import { IsNotEmptyNumber } from '@root/decorators/is-not-empty-number.decorator
 import { ProfileImageEntity } from './profile-image.entity';
 import { PushTokenEntity } from './push-token.entity';
 import { IdentifyVerificationEntity } from './identity-verification.entity';
+import { IsEducation } from '@root/decorators/is-education.decorator';
 
 @Entity()
 export class UserEntity extends CommonColumns {
@@ -33,7 +34,7 @@ export class UserEntity extends CommonColumns {
     password: string;
 
     @ApiProperty({ description: '이름', example: 'kakasoo' })
-    @IsNotEmptyString(1, 30)
+    @IsNotEmptyString(1, 10) // NOTE : 서비스 기획 상 10글자로 제한한다.
     @Column({ length: 30, nullable: false })
     name: string;
 
@@ -47,8 +48,19 @@ export class UserEntity extends CommonColumns {
     @Column({ length: 300, nullable: true })
     introduce: string;
 
+    @ApiProperty({ description: '키' })
+    @IsNotEmptyNumber()
+    @Column('decimal')
+    height: number;
+
+    @ApiProperty({ description: '몸무게' })
+    @IsNotEmptyNumber()
+    @Column('decimal')
+    weight: number;
+
     @ApiProperty({ description: '생일', example: new Date() })
     @IsDate()
+    @IsNotEmpty()
     @Type(() => Date)
     @Column()
     birth: Date;
@@ -57,6 +69,15 @@ export class UserEntity extends CommonColumns {
     @IsGender()
     @Column({ nullable: true })
     gender: string;
+
+    @ApiProperty({ description: '학력', example: 'college' })
+    @IsEducation()
+    @Column({ nullable: true })
+    education: string;
+
+    @ApiProperty({ description: '학력을 구체적으로 기입', example: '엄석대학교' })
+    @Column({ nullable: true, length: 100 })
+    educationDetail: string;
 
     @ApiProperty({ description: 'OAuth 프로바이더', example: 'kakao' })
     @IsProvider()
