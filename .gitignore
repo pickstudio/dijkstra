@@ -51,3 +51,8 @@ tsconfig.build.tsbuildinfo
 .envrc
 
 node_modules
+
+src/data-export/data-transform.py
+src/data-export/parsedData.txt
+src/data-export/compared.txt
+src/data-export/exported-data/*
