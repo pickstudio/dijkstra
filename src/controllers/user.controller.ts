@@ -6,6 +6,7 @@ import { UserId } from '@root/decorators/user-id.decorator';
 import { AddressBookDto } from '@root/dto/address-book.dto';
 import { SearchPaginationDto } from '@root/dto/common/search-pagination.dto';
 import { CreateUserDto } from '@root/dto/create-user.dto';
+import { ProfileImageDto } from '@root/dto/enroll-profile-image.dto';
 import { UpdateUserDto } from '@root/dto/update-user.dto';
 import { PhoneNumberService } from '@root/services/phone-number.service';
 import { UserService } from '@root/services/user.service';
@@ -17,6 +18,18 @@ import { getDifferYear, getToday } from '@root/utils/functions/date.function';
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService, private readonly phoneNumberService: PhoneNumberService) {}
+
+    @ApiOperation({ summary: '유저의 프로필 사진 등록' })
+    @Post('profile-image')
+    async saveProfileImage(@UserId() userId: number, profileImageDto: ProfileImageDto) {
+        return await this.userService.saveProfileImage(userId, profileImageDto);
+    }
+
+    @ApiOperation({ summary: '유저의 프로필 사진 삭제' })
+    @Delete('profile-image')
+    async deleteProfileImage(@UserId() userId: number, imageUrl: string) {
+        return await this.userService.deleteProfileImage(userId, imageUrl);
+    }
 
     @Get('profile')
     @ApiOperation({ summary: '유저의 프로필 조회' })

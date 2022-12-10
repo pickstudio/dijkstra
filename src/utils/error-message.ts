@@ -6,4 +6,5 @@ export const ERROR_MESSAGE = {
     IS_NOT_RIGHT_EXTENSION: { code: 1005, message: '파일의 확장자가 요구되는 적합한 확장자가 아닙니다.' },
     ALREADY_CREATED_USER_NICKNAME: { code: 1006, message: '이미 사용된 닉네임입니다.' },
     IS_NOT_ADULT: { code: 1007, message: '미성년자는 서비스를 이용할 수 없습니다.' },
+    CANNOT_FIND_IMG_URL: { code: 1008, message: '해당 프로필 사진을 찾지 못했습니다.' },
 };

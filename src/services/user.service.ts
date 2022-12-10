@@ -2,9 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SearchPaginationDto } from '@root/dto/common/search-pagination.dto';
 import { CreateUserDto } from '@root/dto/create-user.dto';
+import { ProfileImageDto } from '@root/dto/enroll-profile-image.dto';
 import { UpdateUserDto } from '@root/dto/update-user.dto';
 import { PhoneNumberEntity } from '@root/entities/phone-number.entity';
 import { UserHasPhoneNumberRepository } from '@root/entities/repositories/address-book.repository';
+import { ProfileImageRepository } from '@root/entities/repositories/profile-image.repository';
 import { UserRepository } from '@root/entities/repositories/user.repository';
 import { Providers } from '@root/types';
 import { ERROR_MESSAGE } from '@root/utils/error-message';
@@ -18,6 +20,7 @@ export class UserService {
         @InjectRepository(UserRepository)
         private readonly userRepository: UserRepository,
         private readonly addressBookRepository: UserHasPhoneNumberRepository,
+        private readonly profileImageRepository: ProfileImageRepository,
     ) {}
 
     async createUserByOAuth(provider: string, nickName: string, oAuthId: string, email?: string, gender?: any) {
@@ -104,9 +107,17 @@ export class UserService {
                 id: userId,
             },
             select: {
-                name: true,
+                nickname: true,
                 birth: true,
                 gender: true,
+                height: true,
+                weight: true,
+                education: true,
+                educationDetail: true,
+                introduce: true,
+            },
+            relations: {
+                profileImages: true,
             },
         });
         return profile;
@@ -224,5 +235,22 @@ export class UserService {
             return { ...el, bridge: target.bridgeNickname };
         });
         return result;
+    }
+
+    async saveProfileImage(userId: number, profileImageDto: ProfileImageDto) {
+        return await this.profileImageRepository.save({
+            userId,
+            ...profileImageDto,
+        });
+    }
+
+    async deleteProfileImage(userId: number, imageUrl: string) {
+        const existProfileImage = await this.profileImageRepository.findOne({
+            where: { userId, imageUrl },
+        });
+        if (!existProfileImage) {
+            throw new BadRequestException(ERROR_MESSAGE.CANNOT_FIND_IMG_URL);
+        }
+        return await this.profileImageRepository.softDelete({ imageUrl: existProfileImage.imageUrl });
     }
 }
