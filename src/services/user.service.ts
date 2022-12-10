@@ -253,4 +253,12 @@ export class UserService {
         }
         return await this.profileImageRepository.softDelete({ imageUrl: existProfileImage.imageUrl });
     }
+
+    async agreeWithTos(userId: number) {
+        const existUser = await this.userRepository.findOne({
+            where: { id: userId },
+        });
+        existUser.agreementToToS = new Date();
+        return await this.userRepository.save(existUser);
+    }
 }

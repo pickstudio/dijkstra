@@ -76,7 +76,7 @@ export class UserController {
     }
 
     @ApiOperation({ summary: '전화번호 블록 해제' })
-    @Patch('address-book/block')
+    @Patch('address-book/unblock')
     async unblockAddressBook(@UserId() userId: number, @Body() { addressBooks }: AddressBookDto) {
         return await this.phoneNumberService.unblockPhoneNumber(userId, addressBooks);
     }
@@ -124,5 +124,11 @@ export class UserController {
     @Delete()
     async deleteUser(@UserId() userIdToDelete: number) {
         return await this.userService.deleteOneUser(userIdToDelete);
+    }
+
+    @ApiOperation({ summary: '유저 약관 동의' })
+    @Patch('agree/tos')
+    async agreeWithToS(@UserId() userId: number) {
+        return await this.userService.agreeWithTos(userId);
     }
 }
