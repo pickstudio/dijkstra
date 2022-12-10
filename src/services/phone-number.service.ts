@@ -47,4 +47,32 @@ export class PhoneNumberService {
             where: { userId },
         });
     }
+
+    async blockPhoneNumber(userId: number, addressBooks: OneAddressDto[]) {
+        const willBeBlocked = addressBooks.map((el) => {
+            return {
+                userId,
+                phoneNickname: el.name,
+                isBlocked: true,
+            };
+        });
+
+        await this.userHasPhoneNumberRepository.save(willBeBlocked);
+
+        return true;
+    }
+
+    async unblockPhoneNumber(userId: number, addressBooks: OneAddressDto[]) {
+        const willBeUnblocked = addressBooks.map((el) => {
+            return {
+                userId,
+                phoneNickname: el.name,
+                isBlocked: false,
+            };
+        });
+
+        await this.userHasPhoneNumberRepository.save(willBeUnblocked);
+
+        return true;
+    }
 }

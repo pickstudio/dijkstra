@@ -1,4 +1,15 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Put,
+} from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtGuardWithApiBearerAuth } from '@root/decorators/api-bearer-with-jwt-guard.decorator';
 import { PageParams } from '@root/decorators/page-params.decorator';
@@ -56,6 +67,18 @@ export class UserController {
         const savedPhoneNumber = await this.phoneNumberService.saveOrIgnore(phoneNumbers);
         await this.phoneNumberService.register(userId, savedPhoneNumber, addressBooks);
         return true;
+    }
+
+    @ApiOperation({ summary: '전화번호 블록 처리' })
+    @Patch('address-book/block')
+    async blockAddressBook(@UserId() userId: number, @Body() { addressBooks }: AddressBookDto) {
+        return await this.phoneNumberService.blockPhoneNumber(userId, addressBooks);
+    }
+
+    @ApiOperation({ summary: '전화번호 블록 해제' })
+    @Patch('address-book/block')
+    async unblockAddressBook(@UserId() userId: number, @Body() { addressBooks }: AddressBookDto) {
+        return await this.phoneNumberService.unblockPhoneNumber(userId, addressBooks);
     }
 
     @ApiParam({ name: 'id', description: '조회할 유저의 아이디', example: 1 })
