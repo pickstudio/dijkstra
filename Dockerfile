@@ -1,4 +1,4 @@
-FROM node:17.9.1-alpine3.14 as app
+FROM node:17.9.1 as app
 
 WORKDIR /usr/app
 

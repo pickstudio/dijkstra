@@ -16,10 +16,10 @@ services:
     container_name: dijkstra-app
     build:
       dockerfile: Dockerfile
-      context: .
+      context: ./
     image: dijkstra/dijkstra_server
     command: tail -f /dev/null
-    env_file:
-      - .env
+#    env_file:
+#      - .env
     ports:
       - "3000:3000"
